@@ -25,3 +25,10 @@ display_auto_detect=1
 
 dtoverlay=cma,cma-512
 dtoverlay=rpivid-v4l2
+
+setenv bootmenu_0 Lockdown Mode. setenv bootargs ${bootargs} androidboot.bliss.bootmode=lockdown
+setenv bootmenu_1 Admin Mode. setenv bootargs ${bootargs} androidboot.bliss.bootmode=admin
+setenv bootmenu_2 Reset board=reset
+setenv bootmenu_3 U-Boot boot order=boot
+bootmenu 20
+saveenv
