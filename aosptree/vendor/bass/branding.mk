@@ -1,4 +1,5 @@
 -include vendor/bass/apps.mk
+$(call inherit-product-if-exists, $(LOCAL_PATH)/prebuilts/bootsight/bootsight.mk)
 include vendor/bass/configs/watermark.mk
 include vendor/bass/configs/signing.mk
 $(call inherit-product, vendor/agp-apps/agp-apps.mk)
@@ -42,6 +43,13 @@ PRODUCT_PACKAGES += \
 # packages we like
 PRODUCT_PACKAGES += \
     nano
+
+# Bootsight Service
+PRODUCT_PACKAGES += \
+    BootSight \
+    com.bliss.bootsight-permissions.xml \
+    whitelist-com.bliss.bootsight.xml \
+    com.bliss.bootsight-default-permissions.xml
 
 ifeq ($(USE_PER_DISPLAY_FOCUS),true)
 
