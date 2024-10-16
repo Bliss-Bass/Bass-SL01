@@ -1,3 +1,13 @@
 on early-init
     # Value was found experimentally using bouncing ball test
     write /sys/devices/system/cpu/cpufreq/schedutil/rate_limit_us 2000
+    write /proc/sys/kernel/ctrl-alt-del 1
+
+service ctrl-alt-del /system/bin/input keyevent --longpress POWER
+    disabled
+    oneshot
+    keycodes 97 100 111
+    seclabel u:r:init:s0
+
+on property:sys.boot_completed=1
+    write /proc/sys/kernel/ctrl-alt-del 0
