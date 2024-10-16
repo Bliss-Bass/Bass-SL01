@@ -1,0 +1,45 @@
+From c15f2b6ee32a4c45786d33c9420c29e5b750ceb5 Mon Sep 17 00:00:00 2001
+From: Alex Naidis <alex.naidis@linux.com>
+Date: Sun, 9 Apr 2017 01:29:27 +0200
+Subject: [PATCH 6/8] init: Weaken property override security for the init
+ extension
+
+Sometimes we need to override ro.* properties by using our vendor init
+extension.
+
+Previously there was a security check which was blocking that.
+To resolve the issue, we need to weaken the security check during the
+execution of our vendor init extension.
+
+This is safe because the vendor init extension gets executed as part of init
+construction and it is considered a trusted system component.
+
+Change-Id: Ia7d60686968695f1fb43be4ed58770ce10da88c5
+
+Former-commit-id: 91d12168b9500a44211a7d5a092e0ebcfed48d4d
+Change-Id: I07629b6c19b5ebfa019307c497c18d8bcc719685
+
+Former-commit-id: afc71394f9bbdd04589380bb4ef52df27f1baa26
+Former-commit-id: 6bd10f8e34a25a4652b25d76326d48e38721ff5e
+Former-commit-id: 0cdd630eae8e659533be3331c03452662c8f3e97
+---
+ init/property_service.cpp | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/init/property_service.cpp b/init/property_service.cpp
+index 08aa2ffe9..9b75266b9 100644
+--- a/init/property_service.cpp
++++ b/init/property_service.cpp
+@@ -1222,6 +1222,9 @@ void PropertyLoadBootDefaults() {
+     weaken_prop_override_security = false;
+ 
+     update_sys_usb_config();
++
++    // Restore the normal property override security after init extension is executed
++    weaken_prop_override_security = false;
+ }
+ 
+ bool LoadPropertyInfoFromFile(const std::string& filename,
+-- 
+2.34.1
+

@@ -1,7 +1,7 @@
-From 993056a3a0e0b8fc8722fcd0dc94ab5981794ce8 Mon Sep 17 00:00:00 2001
+From 81a99c7f583876a7848d1874e315577eaf492360 Mon Sep 17 00:00:00 2001
 From: Roman Stratiienko <r.stratiienko@gmail.com>
 Date: Tue, 21 Mar 2023 23:28:07 +0200
-Subject: [PATCH] RFC: Fix boot from one mmc dev while android present on
+Subject: [PATCH 1/8] RFC: Fix boot from one mmc dev while android present on
  another mmc dev.
 
 TODO: Send a bug report to Google.

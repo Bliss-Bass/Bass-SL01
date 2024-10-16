@@ -1,0 +1,85 @@
+From 4e20c0134c0c1f0362555c423e99030f8d2f38fb Mon Sep 17 00:00:00 2001
+From: Alex Naidis <alex.naidis@linux.com>
+Date: Thu, 5 Sep 2024 16:09:09 -0400
+Subject: [PATCH 5/8] init: Weaken property override security for the init
+ extension
+
+Sometimes we need to override ro.* properties by using our vendor init
+extension.
+
+Previously there was a security check which was blocking that.
+To resolve the issue, we need to weaken the security check during the
+execution of our vendor init extension.
+
+This is safe because the vendor init extension gets executed as part of init
+construction and it is considered a trusted system component.
+
+Change-Id: I6198b453745cb92c65d3e3d49e3262354cddd2a2
+Signed-off-by: Alex Naidis <alex.naidis@linux.com>
+Signed-off-by: Park Ju Hyung <qkrwngud825@gmail.com>
+
+Former-commit-id: 15aafc0c179544dd173a7afdce8d4d24b19219e7
+
+Former-commit-id: d5ce44bfdf41cbe51f7432a04409bb11147b35a4
+
+Former-commit-id: ff0763ca639d4987d1130f9838474b935f9b9950
+
+Former-commit-id: 760b30eff74a6e212f57b09be8505ae8283ef3c8
+
+Former-commit-id: 259b97b043c0769d4c8886c9ace9686ca2188536
+
+Former-commit-id: b2022a67efa74fb7bc00e52fdac4a545599104a2
+Former-commit-id: 16a827cae1ccc17f2b3fc0b35b979619c1c195be
+Former-commit-id: 3f64b3f7a1c4ba677bc02d172f8565e00ad803d7
+Change-Id: Ie13df06eb54f5b0685dc4827b5090b70f08fd03a
+---
+ init/property_service.cpp | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/init/property_service.cpp b/init/property_service.cpp
+index 8da69822c..08aa2ffe9 100644
+--- a/init/property_service.cpp
++++ b/init/property_service.cpp
+@@ -127,6 +127,8 @@ struct PropertyAuditData {
+     const char* name;
+ };
+ 
++static bool weaken_prop_override_security = false;
++
+ static int PropertyAuditCallback(void* data, security_class_t /*cls*/, char* buf, size_t len) {
+     auto* d = reinterpret_cast<PropertyAuditData*>(data);
+ 
+@@ -396,8 +398,8 @@ static std::optional<uint32_t> PropertySet(const std::string& name, const std::s
+ 
+     prop_info* pi = (prop_info*)__system_property_find(name.c_str());
+     if (pi != nullptr) {
+-        // ro.* properties are actually "write-once".
+-        if (StartsWith(name, "ro.")) {
++        // ro.* properties are actually "write-once", unless the system decides to
++        if (StartsWith(name, "ro.") && !weaken_prop_override_security) {
+             *error = "Read-only property was already set";
+             return {PROP_ERROR_READ_ONLY_PROPERTY};
+         }
+@@ -1206,6 +1208,9 @@ void PropertyLoadBootDefaults() {
+         }
+     }
+ 
++    // Weaken property override security during execution of the vendor init extension
++    weaken_prop_override_security = true;
++
+     property_initialize_ro_product_props();
+     property_initialize_build_id();
+     property_derive_build_fingerprint();
+@@ -1213,6 +1218,9 @@ void PropertyLoadBootDefaults() {
+     property_initialize_ro_cpu_abilist();
+     property_initialize_ro_vendor_api_level();
+ 
++    // Restore the normal property override security after init extension is executed
++    weaken_prop_override_security = false;
++
+     update_sys_usb_config();
+ }
+ 
+-- 
+2.34.1
+

@@ -1,0 +1,45 @@
+From bcc42afa939b08f64cd8481a0a846b4cf586e800 Mon Sep 17 00:00:00 2001
+From: hmtheboy154 <buingoc67@gmail.com>
+Date: Mon, 8 Jan 2024 11:53:12 -0500
+Subject: [PATCH 8/8] Force not to build init_first_stage
+
+As BOARD_BUILD_SYSTEM_ROOT_IMAGE is being deprecated and we don't
+have any alternative, we need to remove init_first_stage manually
+to avoid conflict with "init: handle ctrl-alt-del event"
+
+Change-Id: Ieb66fd064768cc80722566211481a0a8b5c5ee93
+Signed-off-by: hmtheboy154 <buingoc67@gmail.com>
+---
+ init/Android.bp | 1 +
+ init/Android.mk | 5 -----
+ 2 files changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/init/Android.bp b/init/Android.bp
+index 7b529033a..828f2af39 100644
+--- a/init/Android.bp
++++ b/init/Android.bp
+@@ -329,6 +329,7 @@ cc_binary {
+     name: "init_first_stage",
+     stem: "init",
+     defaults: ["init_first_stage_defaults"],
++    installable: false,
+ 
+     srcs: [
+         "block_dev_initializer.cpp",
+diff --git a/init/Android.mk b/init/Android.mk
+index 4b85c15ea..32254a150 100644
+--- a/init/Android.mk
++++ b/init/Android.mk
+@@ -8,9 +8,4 @@ LOCAL_MODULE := init_vendor
+ LOCAL_LICENSE_KINDS := SPDX-license-identifier-Apache-2.0
+ LOCAL_LICENSE_CONDITIONS := notice
+ LOCAL_NOTICE_FILE := $(LOCAL_PATH)/NOTICE
+-ifneq ($(BOARD_USES_RECOVERY_AS_BOOT),true)
+-LOCAL_REQUIRED_MODULES := \
+-   init_first_stage \
+-
+-endif  # BOARD_USES_RECOVERY_AS_BOOT
+ include $(BUILD_PHONY_PACKAGE)
+-- 
+2.34.1
+
