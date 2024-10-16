@@ -313,7 +313,7 @@ function copy_configs()
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xmltureFlags.java
         
-        echo -e "Grub configs updated"
+        echo -e "Boot configs updated"
     fi
     if [[ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "true" ]] || [[ "$USE_BLISS_RESTRICTED_LAUNCHER" = "true" ]]; then
         if [ "$USE_BLISS_RESTRICTED_LAUNCHER_PRO" = "true" ]; then
@@ -331,7 +331,7 @@ function copy_configs()
         sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/"ENABLE_TASKBAR", true,/"ENABLE_TASKBAR", false,/' packages/apps/Launcher3/src/com/android/launcher3/config/FeatureFlags.java
        
-        echo -e "Grub configs updated"
+        echo -e "Boot configs updated"
     fi
 
     if [ "$USE_BLISS_GAME_MODE_LAUNCHER" = "true" ]; then
@@ -345,7 +345,7 @@ function copy_configs()
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         
-        echo -e "Grub configs updated"
+        echo -e "Boot configs updated"
     fi
 
     if [ "$USE_TITANIUS_LAUNCHER" = "true" ]; then
@@ -359,7 +359,7 @@ function copy_configs()
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         
-        echo -e "Grub configs updated"
+        echo -e "Boot configs updated"
     fi
 
     if [ "$USE_BLISS_TV_LAUNCHER" = "true" ]; then
@@ -373,7 +373,7 @@ function copy_configs()
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         
-        echo -e "Grub configs updated"
+        echo -e "Boot configs updated"
     fi
 
     if [ "$USE_BLISS_CROSS_LAUNCHER" = "true" ]; then
@@ -383,7 +383,7 @@ function copy_configs()
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         
-        echo -e "Grub configs updated"
+        echo -e "Boot configs updated"
     fi
   
     if [[ "$USE_SMARTDOCK_B" = "true" ]] || [[ "$USE_SMARTDOCK" = "true" ]] || [[ "$USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY" = "true" ]]; then
@@ -393,7 +393,7 @@ function copy_configs()
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
         
-        echo -e "Grub configs updated"
+        echo -e "Boot configs updated"
     fi
     if [ "$USE_ALWAYS_ON_SETTINGS" = "true" ]; then
         echo -e "Using always on settings. Updating configs now..."
