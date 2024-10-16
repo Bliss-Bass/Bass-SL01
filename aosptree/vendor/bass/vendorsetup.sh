@@ -600,6 +600,15 @@ function build_config()
         BASS_VENDOR_ID="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
         BASS_HARDWARE_SKU="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
         BASS_PRODUCT_HARDWARE_SKU="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
+    
+    elif [ "$BRAND_NAME" == "BassPi" ]; then
+        # set config defaults
+        echo -e "${ltblue}Setting config defaults${reset}"
+        # Vendor unique build identifier
+        BASS_VENDOR="Bliss Co-Labs"
+        BASS_VENDOR_ID="BASS.DEMO.ARM64."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
+        BASS_HARDWARE_SKU="BASS.DEMO.ARM64."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
+        BASS_PRODUCT_HARDWARE_SKU="BASS.DEMO.ARM64."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
 
     else
         echo -e "${ltblue}Setting custom config defaults${reset}"
