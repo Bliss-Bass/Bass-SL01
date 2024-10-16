@@ -308,6 +308,7 @@ function copy_configs()
         fi
         echo -e "Kiosk launcher selected. Copying configs now..."
         echo ""
+        cp -r vendor/$vendor_name/configs/uboot_configs/kiosk/bootscript.cpp glodroid/configuration/platform/uboot/bootscript.cpp
         sed -i 's/config_freeformWindowManagement">true/config_freeformWindowManagement">false/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xmltureFlags.java
@@ -324,6 +325,7 @@ function copy_configs()
         fi
         echo -e "Restricted launcher selected. Copying configs now..."
         echo ""
+        cp -r vendor/$vendor_name/configs/uboot_configs/restricted/bootscript.cpp glodroid/configuration/platform/uboot/bootscript.cpp
         sed -i 's/config_freeformWindowManagement">true/config_freeformWindowManagement">false/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
@@ -335,6 +337,7 @@ function copy_configs()
     if [ "$USE_BLISS_GAME_MODE_LAUNCHER" = "true" ]; then
         echo -e "Game-Mode launcher selected. Copying configs now..."
         echo ""
+        cp -r vendor/$vendor_name/configs/uboot_configs/game_mode/bootscript.cpp glodroid/configuration/platform/uboot/bootscript.cpp
         cp -r vendor/$vendor_name/configs/grub_configs/game_mode/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
         cp -r vendor/$vendor_name/configs/grub_configs/game_mode/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
         # cp -r vendor/$vendor_name/configs/config_defaults/game_mode/overlay/* vendor/$vendor_name/overlay/
@@ -348,6 +351,7 @@ function copy_configs()
     if [ "$USE_TITANIUS_LAUNCHER" = "true" ]; then
         echo -e "Game-Mode launcher selected. Copying configs now..."
         echo ""
+        cp -r vendor/$vendor_name/configs/uboot_configs/game_mode/bootscript.cpp glodroid/configuration/platform/uboot/bootscript.cpp
         cp -r vendor/$vendor_name/configs/grub_configs/game_mode/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
         cp -r vendor/$vendor_name/configs/grub_configs/game_mode/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
         # cp -r vendor/$vendor_name/configs/config_defaults/game_mode/overlay/* vendor/$vendor_name/overlay/
@@ -361,6 +365,7 @@ function copy_configs()
     if [ "$USE_BLISS_TV_LAUNCHER" = "true" ]; then
         echo -e "TV-Mode launcher selected. Copying configs now..."
         echo ""
+        cp -r vendor/$vendor_name/configs/uboot_configs/tv_mode/bootscript.cpp glodroid/configuration/platform/uboot/bootscript.cpp
         cp -r vendor/$vendor_name/configs/grub_configs/tv_mode/isolinux.cfg bootable/newinstaller/boot/isolinux/isolinux.cfg
         cp -r vendor/$vendor_name/configs/grub_configs/tv_mode/android.cfg bootable/newinstaller/install/grub2/efi/boot/android.cfg
         # cp -r vendor/$vendor_name/configs/config_defaults/tv_mode/overlay/* vendor/$vendor_name/overlay/
@@ -374,6 +379,7 @@ function copy_configs()
     if [ "$USE_BLISS_CROSS_LAUNCHER" = "true" ]; then
         echo -e "Game-Mode CrossLauncher selected. Copying configs now..."
         echo ""
+        cp -r vendor/$vendor_name/configs/uboot_configs/crosslauncher/bootscript.cpp glodroid/configuration/platform/uboot/bootscript.cpp
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">2/config_navBarInteractionMode">0/g' frameworks/base/core/res/res/values/config.xml
         
@@ -383,6 +389,7 @@ function copy_configs()
     if [[ "$USE_SMARTDOCK_B" = "true" ]] || [[ "$USE_SMARTDOCK" = "true" ]] || [[ "$USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY" = "true" ]]; then
         echo -e "Desktop launcher selected. Copying configs now..."
         echo ""
+        cp -r vendor/$vendor_name/configs/uboot_configs/desktop/bootscript.cpp glodroid/configuration/platform/uboot/bootscript.cpp
         sed -i 's/config_navBarInteractionMode">1/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
         sed -i 's/config_navBarInteractionMode">0/config_navBarInteractionMode">2/g' frameworks/base/core/res/res/values/config.xml
         

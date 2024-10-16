@@ -190,6 +190,9 @@ function clean_configs()
     git checkout -- core/res/res/values/config.xml
     git checkout -- packages/SettingsProvider/res/values/defaults.xml
     cd ../..
+    cd glodroid/configuration
+    git checkout -- platform/uboot/bootscript.cpp
+    cd ../..
     
 }
 
