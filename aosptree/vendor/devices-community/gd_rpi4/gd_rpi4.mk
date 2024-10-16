@@ -36,6 +36,7 @@ KERNEL_DTB_FILE := broadcom/bcm2711-rpi-4-b.dtb
 SYSFS_MMC0_PATH := emmc2bus/fe340000.mmc
 
 RPI_CONFIG := $(LOCAL_PATH)/boot/config.txt
+RPI_CMDLINE := $(LOCAL_PATH)/boot/cmdline.txt
 
 GD_NO_DEFAULT_MODEM := true
 
