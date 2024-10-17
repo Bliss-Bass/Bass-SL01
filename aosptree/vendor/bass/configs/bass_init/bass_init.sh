@@ -48,6 +48,19 @@ set_custom_package_perms()
 		fi
 	fi
 
+	# com.example.screenoverlay
+	exists_screenview=$(pm list com.example.screenoverlay | grep -c com.example.screenoverlay)
+	if [ $exists_screenview -eq 1 ]; then
+		appops set com.example.screenoverlay PROJECT_MEDIA allow
+		pm grant com.example.screenoverlay android.permission.MANAGE_MEDIA_PROJECTION
+		appops set com.example.screenoverlay MANAGE_MEDIA_PROJECTION allow
+		pm grant com.example.screenoverlay android.permission.ACCESS_SURFACE_FLINGER
+		pm grant com.example.screenoverlay android.permission.CAPTURE_SECURE_VIDEO_OUTPUT
+		pm grant com.example.screenoverlay android.permission.SYSTEM_ALERT_WINDOW
+		pm grant com.example.screenoverlay android.permission.INJECT_EVENTS
+		appops set com.example.screenoverlay INJECT_EVENTS allow
+	fi
+
 	# com.bliss.bootsight
 	exists_bootsight=$(pm list packages com.bliss.bootsight | grep -c com.bliss.bootsight)
 	if [ $exists_bootsight -eq 1 ]; then
