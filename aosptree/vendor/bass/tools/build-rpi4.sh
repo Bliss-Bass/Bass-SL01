@@ -79,6 +79,7 @@ export MAKE_ONLY_IMAGES=false
 export SET_DARKMODE=false
 export BLISS_CLEAR_DW_HOTSEAT=false
 export BLISS_USE_SYSTEMUI_BLUR=false
+export BASS_BUILD_FILENAME=""
 
 # Help dialog
 function displayHelp() {
@@ -209,10 +210,10 @@ doImageCopy() {
     tar_exists=$(find out/target/product/gd_rpi4/ -name "images.tar.gz")
     flash_exists=$(find out/target/product/gd_rpi4/ -name "flash-sd.sh")
     fastboot_exists=$(find out/target/product/gd_rpi4/ -name "fastboot")
-    build_date=$(date +%Y%m%d%H%M%S)
-    build_pre="${RELEASE_OS_TITLE:-bass}"
-    build_post="${BLISS_SPECIAL_VARIANT}"
-    build_filename="${build_pre}${build_post}-${BASS_VERSION}_gd_rpi4_${build_date}"
+    build_date="$BASS_BUILD_DATE"
+    build_pre="$BASS_BUILD_PRE"
+    build_post="$BASS_BUILD_POST"
+    build_filename="$BASS_BUILD_FILENAME"
     if [[  "$img_exists" != "" ]]; then 
         mkdir -p images/$build_filename
         img_name=$(basename "$img_exists")
@@ -684,6 +685,11 @@ export MAKE_ONLY_IMAGES=${MAKE_ONLY_IMAGES:-false};
 export SET_DARKMODE=${SET_DARKMODE:-false};
 export BLISS_CLEAR_DW_HOTSEAT=${BLISS_CLEAR_DW_HOTSEAT:-false};
 export BLISS_USE_SYSTEMUI_BLUR=${BLISS_USE_SYSTEMUI_BLUR:-false};
+
+export BASS_BUILD_DATE=$(date +%Y%m%d%H)
+export BASS_BUILD_PRE="${RELEASE_OS_TITLE:-bass}"
+export BASS_BUILD_POST="${BLISS_SPECIAL_VARIANT}"
+export BASS_BUILD_FILENAME="${BASS_BUILD_PRE}${BASS_BUILD_POST}-${BASS_VERSION}_gd_rpi4_${BASS_BUILD_DATE}"
 
 if [ "$BLISS_PRODUCTION_BUILD" = "true" ]; then
     if [ ! -d "vendor/bass/configs/signing" ]; then
