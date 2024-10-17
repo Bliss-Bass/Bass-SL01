@@ -263,6 +263,13 @@ ifeq ($(FORCE_WIN_AS_HOME),true)
 
 endif
 
+ifneq ($(BLISS_BUILD_ZIP),)
+
+    PRODUCT_PROPERTY_OVERRIDES += \
+        ro.bliss.build=$(BASS_BUILD_FILENAME) 
+
+endif
+
 # Copy any Permissions files, overriding anything if needed
 $(foreach f,$(wildcard $(LOCAL_PATH)/permissions/*.xml),\
     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/$(notdir $f)))
