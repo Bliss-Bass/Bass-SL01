@@ -45,6 +45,12 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     nano
 
+# Bass init
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/bass_init/bass_init.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/bass_init.rc                       \
+    $(LOCAL_PATH)/configs/bass_init/bass_init.sh:$(TARGET_COPY_OUT_VENDOR)/etc/bass_init/bass_init.sh
+
+
 # Bootsight Service
 PRODUCT_PACKAGES += \
     BootSight \
