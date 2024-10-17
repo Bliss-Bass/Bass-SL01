@@ -48,6 +48,27 @@ set_custom_package_perms()
 		fi
 	fi
 
+	# com.bliss.bootsight
+	exists_bootsight=$(pm list packages com.bliss.bootsight | grep -c com.bliss.bootsight)
+	if [ $exists_bootsight -eq 1 ]; then
+		if [ ! -f /data/misc/bootsight/default ]; then
+			dpm set-active-admin com.bliss.bootsight/android.app.admin.DeviceAdminReceiver
+			appops set com.bliss.bootsight REQUEST_IGNORE_BATTERY_OPTIMIZATIONS allow
+			pm grant com.bliss.bootsight android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+			pm grant com.bliss.bootsight android.permission.ACCESS_NETWORK_STATE
+			pm grant com.bliss.bootsight android.permission.INTERNET
+			pm grant com.bliss.bootsight android.permission.SYSTEM_ALERT_WINDOW
+			pm grant com.bliss.bootsight android.permission.RECEIVE_BOOT_COMPLETED
+			dumpsys deviceidle whitelist +com.bliss.bootsight
+			# Set config marker
+			mkdir -p /data/misc/bootsight
+			touch /data/misc/bootsight/default
+			chown 1000.1000 /data/misc/bootsight /data/misc/bootsight/*
+			chmod 775 /data/misc/bootsight
+			chmod 664 /data/misc/bootsight/default
+		fi
+	fi
+
 	# BlissRestrictedLauncher
 	exists_restlauncher=$(pm list packages com.bliss.restrictedlauncher | grep -c com.bliss.restrictedlauncher)
 	if [ $exists_restlauncher -eq 1 ]; then
