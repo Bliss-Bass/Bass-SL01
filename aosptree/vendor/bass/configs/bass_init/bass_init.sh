@@ -396,6 +396,26 @@ function init_bass_rotation_props()
 	done
 }
 
+function set_device_props()
+{
+	# Set device props
+	has_build=$(getprop ro.bliss.build)
+	has_serial=$(getprop ro.bliss.serialnumber)
+	has_fingerprint=$(getprop ro.bliss.fingerprint)
+	if [ -z "$has_build" ]; then
+		thisbuildid=$(getprop ro.build.version.incremental)
+		set_property ro.bliss.build $thisbuildid
+	fi
+	if [ -z "$has_serial" ]; then
+		thisserialid=$(getprop ro.serialno)
+		set_property ro.bliss.serialnumber $thisserialid
+	fi
+	if [ -z "$has_fingerprint" ]; then
+		thisfingerprint=$(getprop ro.build.fingerprint)
+		set_property ro.bliss.fingerprint $thisfingerprint
+	fi
+}
+
 function set_lowmem()
 {
 	# 3GB size in kB : https://source.android.com/devices/tech/perf/low-ram
@@ -808,6 +828,7 @@ function do_bass_netconsole()
 
 function do_bass_init()
 {
+	set_device_props
 	set_lowmem
 	set_usb_mode
 	set_max_logd
