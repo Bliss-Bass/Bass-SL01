@@ -2,6 +2,7 @@
 $(call inherit-product-if-exists, $(LOCAL_PATH)/prebuilts/bootsight/bootsight.mk)
 include vendor/bass/configs/watermark.mk
 include vendor/bass/configs/signing.mk
+include vendor/bass/configs/versions.mk
 $(call inherit-product, vendor/agp-apps/agp-apps.mk)
 $(call inherit-product, vendor/foss/foss.mk)
 

@@ -209,7 +209,7 @@ doImageCopy() {
     build_date=$(date +%Y%m%d%H%M%S)
     build_pre="${RELEASE_OS_TITLE:-bass}"
     build_post="${BLISS_SPECIAL_VARIANT}"
-    build_filename="${build_pre}${build_post}_gd_rpi4_${build_date}"
+    build_filename="${build_pre}${build_post}-${BASS_VERSION}_gd_rpi4_${build_date}"
     if [[  "$img_exists" != "" ]]; then 
         mkdir -p images/$build_filename
         img_name=$(basename "$img_exists")
