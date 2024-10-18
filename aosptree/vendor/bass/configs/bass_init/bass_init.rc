@@ -1,8 +1,29 @@
+service bass_init /system/bin/sh /vendor/etc/bass_init/bass_init.sh init
+    user root
+    group root
+    seclabel u:r:init:s0
+    disabled
+    oneshot
+
+service bass_bootcomplete /system/bin/sh /vendor/etc/bass_init/bass_init.sh bootcomplete
+    user root
+    group root
+    seclabel u:r:init:s0
+    disabled
+    oneshot
+
+service bass_netconsole /system/bin/sh /vendor/etc/bass_init/bass_init.sh netconsole
+    user root
+    group root
+    seclabel u:r:init:s0
+    disabled
+    oneshot
+
 on post-fs
-    exec u:r:init:s0 -- /system/bin/logwrapper /system/bin/sh /vendor/etc/bass_init/bass_init.sh init
+    start bass_init
 
 on property:sys.boot_completed=1
-    exec u:r:init:s0 -- /system/bin/logwrapper /system/bin/sh /vendor/etc/bass_init/bass_init.sh bootcomplete
+    start bass_bootcomplete
 
 on property:net.dns1=*
-    exec u:r:init:s0 -- /system/bin/logwrapper /system/bin/sh /vendor/etc/bass_init/bass_init.sh netconsole
+    start bass_netconsole

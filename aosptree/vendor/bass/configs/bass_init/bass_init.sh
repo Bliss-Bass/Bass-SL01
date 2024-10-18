@@ -5,6 +5,24 @@ first_run=$(getprop persist.bass.first_run)
 ARCH=$(getprop ro.bionic.arch)
 APK_PATH=/vendor/etc/bass_init
 
+function set_property()
+{
+	setprop "$1" "$2"
+	[ -n "$DEBUG" ] && echo "$1"="$2" >> /dev/bass.prop
+}
+
+function set_prop_if_empty()
+{
+	[ -z "$(getprop $1)" ] && set_property "$1" "$2"
+}
+
+function rmmod_if_exist()
+{
+	for m in $*; do
+		[ -d /sys/module/$m ] && rmmod $m
+	done
+}
+
 set_custom_package_perms()
 {
 	# Set up custom package permissions
@@ -862,11 +880,11 @@ function do_bass_netconsole()
 
 function do_bass_init()
 {
-	set_device_props
 	set_lowmem
 	set_usb_mode
 	set_max_logd
 	set_custom_timezone
+	set_device_props
 	init_bass_rotation_props
 }
 
