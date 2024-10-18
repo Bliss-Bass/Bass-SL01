@@ -2,7 +2,7 @@
 
 # Clean up any passed options and reset them. 
 CLEAN_COMMAND=""
-if [ -n "$BASS_VERSION" ]; then
+if [ -z "$BASS_VERSION" ]; then
     BASS_VERSION="v14.0"
 fi
 build_date=$(date +%Y%m%d%H%M)
