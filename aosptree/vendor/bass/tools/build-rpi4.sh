@@ -242,6 +242,13 @@ doImageCopy() {
     fi
 }
 
+doGenerateChangelog() {
+    # Generate Changelog
+	bash vendor/bass/tools/changelog
+	mv Changelog.txt $(PRODUCT_OUT)/Changelog-$(BASS_BUILD_FILENAME).txt
+    cp $(PRODUCT_OUT)/Changelog-$(BASS_BUILD_FILENAME).txt images/$(BASS_BUILD_FILENAME)/
+}
+
 # if $# -eq 0, exit
 if [ $# -eq 0 ]; then
     displayHelp
@@ -784,6 +791,7 @@ else
 fi
 
 doImageCopy
+doGenerateChangelog
 
 if [[ "$GENERATE_MANIFEST" = "true" ]]; then
     mkdir -p images/$build_filename/manifest/
