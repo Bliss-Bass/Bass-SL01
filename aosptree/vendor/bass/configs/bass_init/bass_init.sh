@@ -455,17 +455,17 @@ function set_device_props()
 	has_serial=$(getprop ro.bliss.serialnumber)
 	has_fingerprint=$(getprop ro.bliss.fingerprint)
 	if [ -z "$has_build" ]; then
-		thisbuildid=$(getprop ro.build.version.incremental)
+		thisbuildid=$(getprop ro.bass.build)
 		set_property ro.bliss.build $thisbuildid
 	fi
+
 	if [ -z "$has_serial" ]; then
 		thisserialid=$(getprop ro.serialno)
 		set_property ro.bliss.serialnumber $thisserialid
 	fi
-	if [ -z "$has_fingerprint" ]; then
-		thisfingerprint=$(getprop ro.build.fingerprint)
-		set_property ro.bliss.fingerprint $thisfingerprint
-	fi
+
+	set_property ro.bliss.fingerprint $(getprop ro.build.fingerprint)
+	
 }
 
 function set_lowmem()

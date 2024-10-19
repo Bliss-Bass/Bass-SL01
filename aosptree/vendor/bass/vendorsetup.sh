@@ -600,6 +600,7 @@ function build_config()
         BASS_VENDOR_ID="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
         BASS_HARDWARE_SKU="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
         BASS_PRODUCT_HARDWARE_SKU="BASS.DEMO."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
+        BASS_BUILD=${BASS_BUILD_FILENAME}
     
     elif [ "$BRAND_NAME" == "BassPi" ]; then
         # set config defaults
@@ -609,6 +610,7 @@ function build_config()
         BASS_VENDOR_ID="BASS.DEMO.ARM64."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
         BASS_HARDWARE_SKU="BASS.DEMO.ARM64."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
         BASS_PRODUCT_HARDWARE_SKU="BASS.DEMO.ARM64."${BLISS_SPECIAL_VARIANT#-}"."$(date +%Y%m%d%H)
+        BASS_BUILD=${BASS_BUILD_FILENAME}
 
     else
         echo -e "${ltblue}Setting custom config defaults${reset}"
@@ -650,7 +652,9 @@ function build_config()
     echo "    ro.bliss.device.vendor.id=$BASS_VENDOR_ID \\" >> $PWD/../bass/tmp/bass_build_config.mk
     echo "    ro.boot.hardware.sku=$BASS_HARDWARE_SKU \\" >> $PWD/../bass/tmp/bass_build_config.mk
     echo "    ro.boot.product.hardware.sku=$BASS_PRODUCT_HARDWARE_SKU \\" >> $PWD/../bass/tmp/bass_build_config.mk
-    echo "    ro.bliss.device.is.licensed=false" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bass.build=$BASS_BUILD_FILENAME \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bliss.device.is.licensed=false \\" >> $PWD/../bass/tmp/bass_build_config.mk
+    echo "    ro.bliss.fingerprint=$BASS_BUILD_FINGERPRINT" >> $PWD/../bass/tmp/bass_build_config.mk
     echo " " >> $PWD/../bass/tmp/bass_build_config.mk
     echo "PRODUCT_COPY_FILES += \\" >> $PWD/../bass/tmp/bass_build_config.mk
     echo '    $(LOCAL_PATH)/tmp/build_config:system/etc/build_config' >> $PWD/../bass/tmp/bass_build_config.mk

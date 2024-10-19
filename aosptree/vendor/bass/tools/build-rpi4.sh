@@ -690,6 +690,7 @@ export BASS_BUILD_DATE=$(date +%Y%m%d%H)
 export BASS_BUILD_PRE="${RELEASE_OS_TITLE:-bass}"
 export BASS_BUILD_POST="${BLISS_SPECIAL_VARIANT}"
 export BASS_BUILD_FILENAME="${BASS_BUILD_PRE}${BASS_BUILD_POST}-${BASS_VERSION}_gd_rpi4_${BASS_BUILD_DATE}"
+export BASS_BUILD_FINGERPRINT="${BASS_BUILD_PRE}/${BASS_VERSION}/${BASS_BUILD_POST}/${BASS_BUILD_DATE}"
 
 if [ "$BLISS_PRODUCTION_BUILD" = "true" ]; then
     if [ ! -d "vendor/bass/configs/signing" ]; then
