@@ -106,8 +106,8 @@ set_custom_package_perms()
 		# Check to make sure dpm list-owners contains com.bliss.restrictedlauncher/.DeviceAdmin.DeviceOwner.Affiliated
 		# if not set, set it
 		is_owner=$(dpm list-owners | grep -c com.bliss.restrictedlauncher/.DeviceAdmin.DeviceOwner.Affiliated)
-		if [ $is_owner -eq 0 ]; then
-			dpm set-active-admin com.bliss.restrictedlauncher/.DeviceAdmin.DeviceOwner.Affiliated
+		if [ "$is_owner" == "" ]; then
+			dpm set-device-owner com.bliss.restrictedlauncher/.DeviceAdmin
 		fi
 		if [ ! -f /data/misc/rlconfig/admin ]; then
 			# set device admin
@@ -149,8 +149,8 @@ set_custom_package_perms()
 		# Check to make sure dpm list-owners contains com.bliss.restrictedlauncher.pro/.DeviceAdmin.DeviceOwner.Affiliated
 		# if not set, set it
 		is_owner=$(dpm list-owners | grep -c com.bliss.restrictedlauncher.pro/.DeviceAdmin.DeviceOwner.Affiliated)
-		if [ $is_owner -eq 0 ]; then
-			dpm set-active-admin com.bliss.restrictedlauncher.pro/.DeviceAdmin.DeviceOwner.Affiliated
+		if [ "$is_owner" == "" ]; then
+			dpm set-device-owner com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.DeviceAdmin
 		fi
 		if [ ! -f /data/misc/rlpconfig/admin ]; then
 			# set device admin
