@@ -223,7 +223,7 @@ doImageCopy() {
     if [[  "$zip_exists" != "" ]]; then 
         mkdir -p images/$build_filename
         zip_name=$(basename "$zip_exists")
-        cp "$zip_exists" images/$build_filename/"$zip_name"
+        cp "$zip_exists" images/$build_filename/"$build_filename.$zip_name"
     fi
     if [[  "$tar_exists" != "" ]]; then 
         mkdir -p images/$build_filename
@@ -245,8 +245,8 @@ doImageCopy() {
 doGenerateChangelog() {
     # Generate Changelog
 	bash vendor/bass/tools/changelog
-	mv Changelog.txt $(PRODUCT_OUT)/Changelog-$(BASS_BUILD_FILENAME).txt
-    cp $(PRODUCT_OUT)/Changelog-$(BASS_BUILD_FILENAME).txt images/$(BASS_BUILD_FILENAME)/
+	mv Changelog.txt out/target/product/gd_rpi4/Changelog-$BASS_BUILD_FILENAME.txt
+    cp out/target/product/gd_rpi4/Changelog-$BASS_BUILD_FILENAME.txt images/$BASS_BUILD_FILENAME/
 }
 
 # if $# -eq 0, exit
