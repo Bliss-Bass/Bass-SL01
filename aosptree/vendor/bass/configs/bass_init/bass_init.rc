@@ -23,7 +23,13 @@ on post-fs
     start bass_init
 
 on property:sys.boot_completed=1
-    start bass_bootcomplete
+    exec u:r:init:s0 -- /system/bin/logwrapper /system/bin/sh /vendor/etc/bass_init/bass_init.sh bootcomplete
+
+# on property:sys.boot_completed=1
+#    start bass_bootcomplete
+
+# on property:net.dns1=*
+#     start bass_netconsole
 
 on property:net.dns1=*
-    start bass_netconsole
+    exec u:r:init:s0 -- /system/bin/logwrapper /system/bin/sh /vendor/etc/bass_init/bass_init.sh netconsole

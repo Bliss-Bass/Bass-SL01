@@ -27,7 +27,7 @@ set_custom_package_perms()
 {
 	# Set up custom package permissions
 
-	current_user="0"
+	current_user=$(dumpsys activity | grep mCurrentUserId | cut -d: -f2)
 
 	# KioskLauncher
 	exists_kiosk=$(pm list packages org.blissos.kiosklauncher | grep -c org.blissos.kiosklauncher)
@@ -105,18 +105,20 @@ set_custom_package_perms()
 	if [ $exists_restlauncher -eq 1 ]; then
 		# Check to make sure dpm list-owners contains com.bliss.restrictedlauncher/.DeviceAdmin.DeviceOwner.Affiliated
 		# if not set, set it
-		is_owner=$(dpm list-owners | grep -c com.bliss.restrictedlauncher/.DeviceAdmin.DeviceOwner.Affiliated)
+		is_owner=$(dpm list-owners | grep com.bliss.restrictedlauncher/)
 		if [ "$is_owner" == "" ]; then
 			dpm set-device-owner com.bliss.restrictedlauncher/.DeviceAdmin
 		fi
 		if [ ! -f /data/misc/rlconfig/admin ]; then
 			# set device admin
 			dpm set-device-owner com.bliss.restrictedlauncher/.DeviceAdmin
-			mkdir -p /data/misc/rlconfig
-			touch /data/misc/rlconfig/admin
-			chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
-			chmod 775 /data/misc/rlconfig
-			chmod 664 /data/misc/rlconfig/admin
+			if [ $(dpm list-owners | grep com.bliss.restrictedlauncher/) != "" ]; then
+				mkdir -p /data/misc/rlconfig
+				touch /data/misc/rlconfig/admin
+				chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
+				chmod 775 /data/misc/rlconfig
+				chmod 664 /data/misc/rlconfig/admin
+			fi
 		fi
 		# set overlays enabled
 		settings put secure secure_overlay_settings 1
@@ -128,19 +130,6 @@ set_custom_package_perms()
 		pm set-home-activity "com.bliss.restrictedlauncher/.activities.LauncherActivity"
 		am start -a android.intent.action.MAIN -c android.intent.category.HOME
 
-		if [ -f /data/data/com.bliss.restrictedlauncher/files/whitelist.lst ]; then
-			if [ ! -f /data/misc/rlpconfig/whitelist ]; then
-				echo -e "\ncom.android.printservice.recommendation" >> /data/data/com.bliss.restrictedlauncher/files/whitelist.lst
-				echo -e "com.android.printspooler" >> /data/data/com.bliss.restrictedlauncher/files/whitelist.lst
-				echo -e "com.android.systemui" >> /data/data/com.bliss.restrictedlauncher/files/whitelist.lst
-				echo -e "com.android.packageinstaller" >> /data/data/com.bliss.restrictedlauncher/files/whitelist.lst				
-				mkdir -p /data/misc/rlconfig
-				touch /data/misc/rlconfig/whitelist
-				chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
-				chmod 775 /data/misc/rlconfig
-				chmod 664 /data/misc/rlconfig/whitelist
-			fi
-		fi
 	fi
 
 	# BlissRestrictedLauncherPro
@@ -148,18 +137,20 @@ set_custom_package_perms()
 	if [ $exists_restlauncherpro -eq 1 ]; then
 		# Check to make sure dpm list-owners contains com.bliss.restrictedlauncher.pro/.DeviceAdmin.DeviceOwner.Affiliated
 		# if not set, set it
-		is_owner=$(dpm list-owners | grep -c com.bliss.restrictedlauncher.pro/.DeviceAdmin.DeviceOwner.Affiliated)
+		is_owner=$(dpm list-owners | grep com.bliss.restrictedlauncher.pro/)
 		if [ "$is_owner" == "" ]; then
 			dpm set-device-owner com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.DeviceAdmin
 		fi
 		if [ ! -f /data/misc/rlpconfig/admin ]; then
 			# set device admin
 			dpm set-device-owner com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.DeviceAdmin
-			mkdir -p /data/misc/rlconfig
-			touch /data/misc/rlconfig/admin
-			chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
-			chmod 775 /data/misc/rlconfig
-			chmod 664 /data/misc/rlconfig/admin
+			if [ $(dpm list-owners | grep com.bliss.restrictedlauncher.pro/) != "" ]; then
+				mkdir -p /data/misc/rlconfig
+				touch /data/misc/rlconfig/admin
+				chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
+				chmod 775 /data/misc/rlconfig
+				chmod 664 /data/misc/rlconfig/admin
+			fi
 		fi
 		# set overlays enabled
 		settings put secure secure_overlay_settings 1
@@ -171,19 +162,6 @@ set_custom_package_perms()
 		pm set-home-activity "com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.activities.LauncherActivity"
 		am start -a android.intent.action.MAIN -c android.intent.category.HOME
 
-		if [ -f /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst ]; then
-			if [ ! -f /data/misc/rlpconfig/whitelist ]; then
-				echo -e "\ncom.android.printservice.recommendation" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
-				echo -e "com.android.printspooler" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
-				echo -e "com.android.systemui" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
-				echo -e "com.android.packageinstaller" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst				
-				mkdir -p /data/misc/rlconfig
-				touch /data/misc/rlconfig/whitelist
-				chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
-				chmod 775 /data/misc/rlconfig
-				chmod 664 /data/misc/rlconfig/whitelist
-			fi
-		fi
 	fi
 
 	# Molla Launcher
