@@ -1,6 +1,8 @@
 dtparam=audio=on
 dtparam=krnbt=on
 dtparam=uart1=on
+dtparam=spi=on
+dtparam=i2c_arm=on
 
 # CPU
 arm_boost=1
@@ -25,3 +27,4 @@ display_auto_detect=1
 
 dtoverlay=cma,cma-512
 dtoverlay=rpivid-v4l2
+dtoverlay=ads7846,penirq=25,speed=10000,penirq_pull=2,xohms=150
