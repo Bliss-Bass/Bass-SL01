@@ -1,7 +1,7 @@
-From 31c9479d75e51c4fb631d2625aa01f1e4c10b8dd Mon Sep 17 00:00:00 2001
+From 4a680ba8614623ad86dd4832805674cdd147e019 Mon Sep 17 00:00:00 2001
 From: Roman Stratiienko <r.stratiienko@gmail.com>
 Date: Sun, 17 Sep 2023 17:38:36 +0300
-Subject: [PATCH 1/5] RPI4: High performance screen capture
+Subject: [PATCH 01/10] RPI4: High performance screen capture
 
 Signed-off-by: Roman Stratiienko <r.stratiienko@gmail.com>
 ---
@@ -153,5 +153,5 @@ index 5b7656d..91614fa 100644
 +/vendor/bin/hw/android\.hardware\.media\.c2@1\.0-service-v4l2                   u:object_r:mediacodec_exec:s0
 +/vendor/lib(64)?/libc2plugin_store\.so                                          u:object_r:same_process_hal_file:s0
 -- 
-2.39.2
+2.34.1
 

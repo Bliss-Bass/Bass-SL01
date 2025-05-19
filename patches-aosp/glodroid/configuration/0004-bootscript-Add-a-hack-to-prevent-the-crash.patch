@@ -1,7 +1,7 @@
-From cf2e1ec62e291b049feb107e300ad8a8372e6563 Mon Sep 17 00:00:00 2001
+From 46ffc0fa2805bf6f169f2f32c78b5df99e100204 Mon Sep 17 00:00:00 2001
 From: Roman Stratiienko <r.stratiienko@gmail.com>
 Date: Sun, 3 Dec 2023 18:05:09 +0200
-Subject: [PATCH 4/5] bootscript: Add a hack to prevent the crash
+Subject: [PATCH 04/10] bootscript: Add a hack to prevent the crash
 
 The kernel crashes during boot. But if you try to investigate it and add an
 UART logging, it appears that any change of cmdline size fixes the issue.
@@ -55,5 +55,5 @@ index e9fa198..1e78b18 100644
  FUNC_BEGIN(enter_fastboot)
  #ifdef PRE_ENTER_FASTBOOT
 -- 
-2.39.2
+2.34.1
 

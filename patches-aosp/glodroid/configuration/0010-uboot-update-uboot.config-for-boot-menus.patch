@@ -1,0 +1,26 @@
+From edb04b686d406a831df5dfbbb7c316615a09601d Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Wed, 16 Oct 2024 17:44:19 -0400
+Subject: [PATCH 10/10] uboot: update uboot.config for boot menus
+
+---
+ platform/common/uboot.config | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/platform/common/uboot.config b/platform/common/uboot.config
+index 1524127..3d2d458 100644
+--- a/platform/common/uboot.config
++++ b/platform/common/uboot.config
+@@ -17,6 +17,9 @@ CONFIG_LZ4=y
+ CONFIG_RANDOM_UUID=y
+ CONFIG_ANDROID_AB=y
+ CONFIG_CMD_AB_SELECT=y
++CONFIG_MENU=y
++CONFIG_CMD_ASKENV=y
++CONFIG_CMD_CAT=y
+ 
+ # Google fastboot VID and PID
+ CONFIG_USB_GADGET_VENDOR_NUM=0x18D1
+-- 
+2.34.1
+

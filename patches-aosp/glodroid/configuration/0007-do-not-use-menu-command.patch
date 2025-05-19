@@ -1,0 +1,30 @@
+From d3f7dfb35910b36dd8bbdcfb7afc8532eee82b1c Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Mon, 30 Sep 2024 20:51:22 -0400
+Subject: [PATCH 07/10] do not use menu command
+
+it is not available in this uboot version
+---
+ platform/uboot/bootscript.cpp | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/platform/uboot/bootscript.cpp b/platform/uboot/bootscript.cpp
+index 425308c..1e78b18 100644
+--- a/platform/uboot/bootscript.cpp
++++ b/platform/uboot/bootscript.cpp
+@@ -133,12 +133,6 @@ FUNC_BEGIN(bootcmd_start)
+ #ifdef POSTPROCESS_FDT
+  POSTPROCESS_FDT()
+ #endif
+- menu bootmode
+-    "Lockdown Mode"      setenv bliss_bootmode lockdown
+-    "Admin Mode"         setenv bliss_bootmode admin
+- endmenu
+-
+- EXTENV(bootargs, " androidboot.bliss.bootmode=\${bliss_bootmode}")
+  /* START KERNEL */
+  bootm \$abootimg_boot_ptr
+  /* Should never get here */
+-- 
+2.34.1
+

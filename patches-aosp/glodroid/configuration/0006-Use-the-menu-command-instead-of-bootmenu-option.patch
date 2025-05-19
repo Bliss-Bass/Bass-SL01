@@ -1,0 +1,47 @@
+From 67a5f6914d7d828cec3763b26bcd50377fbabbc4 Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Mon, 30 Sep 2024 19:35:52 -0400
+Subject: [PATCH 06/10] Use the menu command instead of bootmenu option
+
+---
+ platform/common/uboot.config  | 6 ------
+ platform/uboot/bootscript.cpp | 6 ++++++
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/platform/common/uboot.config b/platform/common/uboot.config
+index 5ca1e9d..f2e255a 100644
+--- a/platform/common/uboot.config
++++ b/platform/common/uboot.config
+@@ -17,12 +17,6 @@ CONFIG_RANDOM_UUID=y
+ CONFIG_ANDROID_AB=y
+ CONFIG_CMD_AB_SELECT=y
+ 
+-# U-Boot boot menu
+-CONFIG_CMD_BOOTMENU=y
+-CONFIG_AUTOBOOT_KEYED=y
+-CONFIG_BOOTDELAY=20
+-CONFIG_AUTOBOOT_MENU_SHOW=y
+-
+ # Google fastboot VID and PID
+ CONFIG_USB_GADGET_VENDOR_NUM=0x18D1
+ CONFIG_USB_GADGET_PRODUCT_NUM=0x4EE0
+diff --git a/platform/uboot/bootscript.cpp b/platform/uboot/bootscript.cpp
+index 1e78b18..425308c 100644
+--- a/platform/uboot/bootscript.cpp
++++ b/platform/uboot/bootscript.cpp
+@@ -133,6 +133,12 @@ FUNC_BEGIN(bootcmd_start)
+ #ifdef POSTPROCESS_FDT
+  POSTPROCESS_FDT()
+ #endif
++ menu bootmode
++    "Lockdown Mode"      setenv bliss_bootmode lockdown
++    "Admin Mode"         setenv bliss_bootmode admin
++ endmenu
++
++ EXTENV(bootargs, " androidboot.bliss.bootmode=\${bliss_bootmode}")
+  /* START KERNEL */
+  bootm \$abootimg_boot_ptr
+  /* Should never get here */
+-- 
+2.34.1
+

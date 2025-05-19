@@ -1,0 +1,29 @@
+From 711bb7ebbc19196315ecc3669ae7c61bc0596cbf Mon Sep 17 00:00:00 2001
+From: Jon West <electrikjesus@gmail.com>
+Date: Sun, 29 Sep 2024 15:15:15 -0400
+Subject: [PATCH 05/10] Enable u-boot bootmenu
+
+---
+ platform/common/uboot.config | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/platform/common/uboot.config b/platform/common/uboot.config
+index f2e255a..5ca1e9d 100644
+--- a/platform/common/uboot.config
++++ b/platform/common/uboot.config
+@@ -17,6 +17,12 @@ CONFIG_RANDOM_UUID=y
+ CONFIG_ANDROID_AB=y
+ CONFIG_CMD_AB_SELECT=y
+ 
++# U-Boot boot menu
++CONFIG_CMD_BOOTMENU=y
++CONFIG_AUTOBOOT_KEYED=y
++CONFIG_BOOTDELAY=20
++CONFIG_AUTOBOOT_MENU_SHOW=y
++
+ # Google fastboot VID and PID
+ CONFIG_USB_GADGET_VENDOR_NUM=0x18D1
+ CONFIG_USB_GADGET_PRODUCT_NUM=0x4EE0
+-- 
+2.34.1
+
