@@ -1,7 +1,7 @@
-From c98966803edd89928396db3e633a729f7e512158 Mon Sep 17 00:00:00 2001
+From adddd0e2a500f09044d7fb163c62156cd0c9b0b6 Mon Sep 17 00:00:00 2001
 From: Roman Stratiienko <r.stratiienko@gmail.com>
 Date: Tue, 4 Apr 2023 22:07:21 +0300
-Subject: [PATCH 2/5] Disable AVB
+Subject: [PATCH 02/10] Disable AVB
 
 Reduces boot time.
 
@@ -52,5 +52,5 @@ index a1e2537..79001b1 100644
  
  FUNC_BEGIN(rename_and_expand_userdata_placeholder)
 -- 
-2.39.2
+2.34.1
 

@@ -1,7 +1,7 @@
-From d9c3b3101d1dd48437d790c8624d2153d432c844 Mon Sep 17 00:00:00 2001
+From e1164b3504f645947f413879a3ac0486b12749eb Mon Sep 17 00:00:00 2001
 From: Roman Stratiienko <r.stratiienko@gmail.com>
 Date: Tue, 4 Apr 2023 22:06:44 +0300
-Subject: [PATCH 3/5] bootscript: Disable uart logging
+Subject: [PATCH 03/10] bootscript: Disable uart logging
 
 Improves boot time significantly.
 
@@ -24,5 +24,5 @@ index 79001b1..e9fa198 100644
  FUNC_BEGIN(enter_fastboot)
  #ifdef PRE_ENTER_FASTBOOT
 -- 
-2.39.2
+2.34.1
 
