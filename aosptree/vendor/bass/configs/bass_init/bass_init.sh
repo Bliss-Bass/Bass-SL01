@@ -8,7 +8,7 @@ APK_PATH=/vendor/etc/bass_init
 function set_property()
 {
 	setprop "$1" "$2"
-	[ -n "$DEBUG" ] && echo "$1"="$2" >> /dev/bass.prop
+	[ -n "$DEBUG" ] && echo "$1"="$2" >> /dev/x86.prop
 }
 
 function set_prop_if_empty()
@@ -16,18 +16,254 @@ function set_prop_if_empty()
 	[ -z "$(getprop $1)" ] && set_property "$1" "$2"
 }
 
-function rmmod_if_exist()
+function smartdock_perms()
 {
-	for m in $*; do
-		[ -d /sys/module/$m ] && rmmod $m
-	done
+	# SmartDock
+	exists_smartdock=$(pm list packages cu.axel.smartdock | grep -c cu.axel.smartdock)
+	if [ $exists_smartdock -eq 1 ]; then
+		pm grant cu.axel.smartdock android.permission.SYSTEM_ALERT_WINDOW
+		pm grant cu.axel.smartdock android.permission.GET_TASKS
+		pm grant cu.axel.smartdock android.permission.REORDER_TASKS
+		pm grant cu.axel.smartdock android.permission.REMOVE_TASKS
+		pm grant cu.axel.smartdock android.permission.ACCESS_WIFI_STATE
+		pm grant cu.axel.smartdock android.permission.CHANGE_WIFI_STATE
+		pm grant cu.axel.smartdock android.permission.ACCESS_NETWORK_STATE
+		pm grant cu.axel.smartdock android.permission.ACCESS_COARSE_LOCATION
+		pm grant cu.axel.smartdock android.permission.ACCESS_FINE_LOCATION
+		pm grant cu.axel.smartdock android.permission.READ_EXTERNAL_STORAGE
+		pm grant cu.axel.smartdock android.permission.MANAGE_USERS
+		pm grant cu.axel.smartdock android.permission.BLUETOOTH_ADMIN
+		pm grant cu.axel.smartdock android.permission.BLUETOOTH_CONNECT
+		pm grant cu.axel.smartdock android.permission.BLUETOOTH
+		pm grant cu.axel.smartdock android.permission.REQUEST_DELETE_PACKAGES
+		pm grant cu.axel.smartdock android.permission.ACCESS_SUPERUSER
+		pm grant cu.axel.smartdock android.permission.PACKAGE_USAGE_STATS
+		pm grant cu.axel.smartdock android.permission.QUERY_ALL_PACKAGES
+		pm grant cu.axel.smartdock android.permission.WRITE_SECURE_SETTINGS
+		pm grant --user $current_user cu.axel.smartdock android.permission.WRITE_SECURE_SETTINGS
+		appops set cu.axel.smartdock WRITE_SECURE_SETTINGS allow
+		pm grant cu.axel.smartdock android.permission.WRITE_SETTINGS
+		pm grant --user $current_user cu.axel.smartdock android.permission.WRITE_SETTINGS
+		appops set cu.axel.smartdock WRITE_SETTINGS allow
+		pm grant cu.axel.smartdock android.permission.BIND_ACCESSIBILITY_SERVICE
+		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_ACCESSIBILITY_SERVICE
+		appops set cu.axel.smartdock BIND_ACCESSIBILITY_SERVICE allow
+		pm grant cu.axel.smartdock android.permission.BIND_NOTIFICATION_LISTENER_SERVICE
+		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_NOTIFICATION_LISTENER_SERVICE
+		appops set cu.axel.smartdock BIND_NOTIFICATION_LISTENER_SERVICE allow
+		pm grant cu.axel.smartdock android.permission.BIND_DEVICE_ADMIN
+		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_DEVICE_ADMIN
+		appops set cu.axel.smartdock BIND_DEVICE_ADMIN allow
+		pm grant cu.axel.smartdock android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+		pm grant --user $current_user cu.axel.smartdock android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+
+		# set overlays enabled
+		settings put secure secure_overlay_settings 1
+
+		# allow displaying over other apps if in Go mode
+		settings put system alert_window_bypass_low_ram 1
+
+		if [ ! -f /data/misc/sdconfig/accessibility ] && ! pm list packages | grep -q "com.blissos.setupwizard"; then
+			# set accessibility services
+			current_acc_pkgs=$(settings get secure enabled_accessibility_services)
+			is_setup_complete=$(settings get secure user_setup_complete)
+			if [[ $is_setup_complete -eq 1 ]] && [[ $(echo "$current_acc_pkgs" | grep -c cu.axel.smartdock) -eq 0 ]]; then
+				if [ -n "$current_acc_pkgs" ]; then
+					settings put secure enabled_accessibility_services $current_acc_pkgs:cu.axel.smartdock/.services.DockService
+				else
+					settings put secure enabled_accessibility_services cu.axel.smartdock/.services.DockService
+				fi
+				mkdir -p /data/misc/sdconfig
+				touch /data/misc/sdconfig/accessibility
+				chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
+				chmod 775 /data/misc/sdconfig
+				chmod 664 /data/misc/sdconfig/accessibility
+			fi
+		fi
+
+		if [ ! -f /data/misc/sdconfig/notification ]; then
+			# set notification listeners
+			enl=$(settings get secure enabled_notification_listeners)
+			if [ -n "$enl" ]; then
+				settings put secure enabled_notification_listeners $enl:cu.axel.smartdock/cu.axel.smartdock.services.NotificationService
+				
+			else
+				settings put secure enabled_notification_listeners cu.axel.smartdock/cu.axel.smartdock.services.NotificationService
+			fi
+			mkdir -p /data/misc/sdconfig
+			touch /data/misc/sdconfig/notification
+			chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
+			chmod 775 /data/misc/sdconfig
+			chmod 664 /data/misc/sdconfig/notification
+		fi
+		if [ ! -f /data/misc/sdconfig/admin ]; then
+			# set device admin
+			dpm set-active-admin --user current cu.axel.smartdock/android.app.admin.DeviceAdminReceiver
+			mkdir -p /data/misc/sdconfig
+			touch /data/misc/sdconfig/admin
+			chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
+			chmod 775 /data/misc/sdconfig
+			chmod 664 /data/misc/sdconfig/admin
+		fi
+
+		if [ $(settings get global development_settings_enabled) == 0 ]; then
+			settings put global development_settings_enabled 1
+		fi
+
+		# set launcher
+		SET_SMARTDOCK_DEFAULT=$(getprop persist.bass.set_smartdock_default)
+		[ -n "$SET_SMARTDOCK_DEFAULT" ] && pm set-home-activity "cu.axel.smartdock/.activities.LauncherActivity" || pm set-home-activity "com.android.launcher3/.LauncherProvider"
+		
+	fi
+}
+
+function restricted_perms()
+{
+	# BlissRestrictedLauncher
+	exists_restlauncher=$(pm list packages com.bliss.restrictedlauncher | grep -c com.bliss.restrictedlauncher)
+	if [ $exists_restlauncher -eq 1 ]; then			
+		if [ ! -f /data/misc/rlconfig/admin ]; then
+			# set device admin
+			dpm set-device-owner com.bliss.restrictedlauncher/.DeviceAdmin
+			mkdir -p /data/misc/rlconfig
+			touch /data/misc/rlconfig/admin
+			chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
+			chmod 775 /data/misc/rlconfig
+			chmod 664 /data/misc/rlconfig/admin
+		fi
+		# set overlays enabled
+		settings put secure secure_overlay_settings 1
+
+		# allow displaying over other apps if in Go mode
+		settings put system alert_window_bypass_low_ram 1
+
+		pm grant com.bliss.restrictedlauncher android.permission.SYSTEM_ALERT_WINDOW
+		pm set-home-activity "com.bliss.restrictedlauncher/.activities.LauncherActivity"
+		am start -a android.intent.action.MAIN -c android.intent.category.HOME
+
+		if [ -f /data/data/com.bliss.restrictedlauncher/files/whitelist.lst ]; then
+			if [ ! -f /data/misc/rlconfig/whitelist ]; then
+				echo -e "\ncom.android.printservice.recommendation" >> /data/data/com.bliss.restrictedlauncher/files/whitelist.lst
+				echo -e "com.android.printspooler" >> /data/data/com.bliss.restrictedlauncher/files/whitelist.lst
+				echo -e "com.android.systemui" >> /data/data/com.bliss.restrictedlauncher/files/whitelist.lst
+				echo -e "com.android.packageinstaller" >> /data/data/com.bliss.restrictedlauncher/files/whitelist.lst				
+				mkdir -p /data/misc/rlconfig
+				touch /data/misc/rlconfig/whitelist
+				chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
+				chmod 775 /data/misc/rlconfig
+				chmod 664 /data/misc/rlconfig/whitelist
+			fi
+		fi		
+	fi
+}
+
+function restricted_pro_perms()
+{
+	# BlissRestrictedLauncherPro
+	exists_restlauncherpro=$(pm list packages com.bliss.restrictedlauncher.pro | grep -c com.bliss.restrictedlauncher.pro)
+	if [ $exists_restlauncherpro -eq 1 ]; then
+		if [ ! -f /data/misc/rlpconfig/admin ]; then
+			# set device admin
+			dpm set-device-owner com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.DeviceAdmin
+			mkdir -p /data/misc/rlpconfig
+			touch /data/misc/rlpconfig/admin
+			chown 1000.1000 /data/misc/rlpconfig /data/misc/rlpconfig/*
+			chmod 775 /data/misc/rlpconfig
+			chmod 664 /data/misc/rlpconfig/admin
+		fi
+		# set overlays enabled
+		settings put secure secure_overlay_settings 1
+
+		# allow displaying over other apps if in Go mode
+		settings put system alert_window_bypass_low_ram 1
+				
+		pm grant com.bliss.restrictedlauncher.pro android.permission.SYSTEM_ALERT_WINDOW
+		pm set-home-activity "com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.activities.LauncherActivity"
+		am start -a android.intent.action.MAIN -c android.intent.category.HOME
+
+		if [ -f /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst ]; then
+			if [ ! -f /data/misc/rlpconfig/whitelist ]; then
+				echo -e "\ncom.android.printservice.recommendation" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
+				echo -e "com.android.printspooler" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
+				echo -e "com.android.systemui" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
+				echo -e "com.android.packageinstaller" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst				
+				mkdir -p /data/misc/rlpconfig
+				touch /data/misc/rlpconfig/whitelist
+				chown 1000.1000 /data/misc/rlpconfig /data/misc/rlpconfig/*
+				chmod 775 /data/misc/rlpconfig
+				chmod 664 /data/misc/rlpconfig/whitelist
+			fi
+		fi
+	fi
+
+}
+
+function rm_rl_admin()
+{
+	# remove RL admin
+	dpm remove-active-admin --user current com.bliss.restrictedlauncher/.DeviceAdmin
+	rm -rf /data/misc/rlconfig/admin
+}
+
+function rm_rlp_admin()
+{
+	# remove RL admin
+	dpm remove-active-admin --user current com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.DeviceAdmin
+	rm -rf /data/misc/rlconfig/admin
+}
+
+function rm_sd_admin()
+{
+	# remove smartdock admin
+	dpm remove-active-admin --user current cu.axel.smartdock/android.app.admin.DeviceAdminReceiver
+	rm -rf /data/misc/sdconfig/admin
+
+	current_acc_pkgs=$(settings get secure enabled_accessibility_services)
+	if [ $(echo "$current_acc_pkgs" | grep -c cu.axel.smartdock) -eq 1 ]; then
+		# remove :cu.axel.smartdock/.services.DockService from enabled_accessibility_services
+		new_acc_pkgs=$(echo "$current_acc_pkgs" | sed "s/:cu.axel.smartdock[^:]*//g")
+		settings put secure enabled_accessibility_services "$new_acc_pkgs"
+		rm -rf /data/misc/sdconfig/accessibility
+	fi
+}
+
+set_boot_config_perms()
+{
+	# com.bliss.bootconfig
+	exists_bootconfig=$(pm list packages com.bliss.bootconfig | grep -c com.bliss.bootconfig)
+	config_file=$(getprop ro.boot.bootctrl_bootcfg)
+	if [ -z "$config_file" ]; then
+		config_file=$(cat /proc/cmdline | grep -o "androidboot.bootctrl_bootcfg=[^ ]*" | cut -d '=' -f 2)
+		set_property ro.boot.bootctrl_bootcfg $config_file
+	fi
+	if [ $exists_bootconfig -eq 1 ]; then
+		# Set up custom package permissions
+		bootcfg_uid=$(cat /data/system/packages.list | grep com.bliss.bootconfig | cut -d ' ' -f 2)
+		
+		chown $bootcfg_uid:$bootcfg_uid ${config_file}
+
+		if [ ! -d /data/data/com.bliss.bootconfig/files ]; then
+			mkdir -p /data/data/com.bliss.bootconfig/files
+			chown $bootcfg_uid:$bootcfg_uid /data/data/com.bliss.bootconfig/files
+		fi
+
+		cat /proc/cmdline > /data/data/com.bliss.bootconfig/files/proc_cmdline
+		chown $bootcfg_uid:$bootcfg_uid /data/data/com.bliss.bootconfig/files/proc_cmdline
+
+		# Set config marker
+		mkdir -p /data/misc/bootconfig
+		echo ${date +%s} > /data/misc/bootconfig/set
+		chown 1000:1000 /data/misc/bootconfig /data/misc/bootconfig/*
+		chmod 775 /data/misc/bootconfig
+		chmod 664 /data/misc/bootconfig/set
+	fi
 }
 
 set_custom_package_perms()
 {
-	# Set up custom package permissions
+	# set custom package permissions
 
-	current_user=$(dumpsys activity | grep mCurrentUserId | cut -d: -f2)
+	current_user="0"
 
 	# KioskLauncher
 	exists_kiosk=$(pm list packages org.blissos.kiosklauncher | grep -c org.blissos.kiosklauncher)
@@ -50,6 +286,104 @@ set_custom_package_perms()
 		settings put global force_desktop_mode_on_external_displays "$FORCE_DESKTOP_ON_EXTERNAL"
 	fi
 
+	# ccom.example.screenoverlay
+	exists_screenview=$(pm list com.example.screenoverlay | grep -c com.example.screenoverlay)
+	if [ $exists_screenview -eq 1 ]; then
+		appops set com.example.screenoverlay PROJECT_MEDIA allow
+		pm grant com.example.screenoverlay android.permission.MANAGE_MEDIA_PROJECTION
+		appops set com.example.screenoverlay MANAGE_MEDIA_PROJECTION allow
+		pm grant com.example.screenoverlay android.permission.ACCESS_SURFACE_FLINGER
+		pm grant com.example.screenoverlay android.permission.CAPTURE_SECURE_VIDEO_OUTPUT
+		pm grant com.example.screenoverlay android.permission.SYSTEM_ALERT_WINDOW
+		pm grant com.example.screenoverlay android.permission.INJECT_EVENTS
+		appops set com.example.screenoverlay INJECT_EVENTS allow
+	fi
+
+	# DaoidVNC
+	exists_droidvnc=$(pm list packages net.christianbeier.droidvnc_ng | grep -c net.christianbeier.droidvnc_ng)
+	if [ $exists_droidvnc -eq 1 ]; then
+
+		appops set net.christianbeier.droidvnc_ng PROJECT_MEDIA allow
+		appops set net.christianbeier.droidvnc_ng MANAGE_MEDIA_PROJECTION allow
+		appops set net.christianbeier.droidvnc_ng INJECT_EVENTS allow
+		appops set net.christianbeier.droidvnc_ng FOREGROUND_SERVICE allow
+		appops set net.christianbeier.droidvnc_ng FOREGROUND_SERVICE_MEDIA_PROJECTION allow
+		appops set net.christianbeier.droidvnc_ng FOREGROUND_SERVICE_CONNECTED_DEVICE allow
+		appops set net.christianbeier.droidvnc_ng CHANGE_NETWORK_STATE allow
+		pm grant net.christianbeier.droidvnc_ng android.permission.INTERNET
+		pm grant net.christianbeier.droidvnc_ng android.permission.RECEIVE_BOOT_COMPLETED
+		pm grant net.christianbeier.droidvnc_ng android.permission.WRITE_EXTERNAL_STORAGE
+		pm grant net.christianbeier.droidvnc_ng android.permission.FOREGROUND_SERVICE
+		pm grant net.christianbeier.droidvnc_ng android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION
+		pm grant net.christianbeier.droidvnc_ng android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE
+		pm grant net.christianbeier.droidvnc_ng android.permission.CHANGE_NETWORK_STATE
+		pm grant net.christianbeier.droidvnc_ng android.permission.WAKE_LOCK
+		pm grant net.christianbeier.droidvnc_ng android.permission.POST_NOTIFICATIONS
+		pm grant net.christianbeier.droidvnc_ng android.permission.ACCESS_NETWORK_STATE
+		pm grant net.christianbeier.droidvnc_ng net.christianbeier.droidvnc_ng.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+		pm grant net.christianbeier.droidvnc_ng android.permission.READ_EXTERNAL_STORAGE
+		pm grant net.christianbeier.droidvnc_ng android.permission.BIND_ACCESSIBILITY_SERVICE
+		pm grant --user $current_user net.christianbeier.droidvnc_ng android.permission.BIND_ACCESSIBILITY_SERVICE
+		appops set net.christianbeier.droidvnc_ng BIND_ACCESSIBILITY_SERVICE allow
+
+		current_acc_pkgs=$(settings get secure enabled_accessibility_services)
+		if [ $(echo "$current_acc_pkgs" | grep -c net.christianbeier.droidvnc_ng) -eq 0 ]; then
+			if [ -n "$current_acc_pkgs" ]; then
+				settings put secure enabled_accessibility_services $current_acc_pkgs:net.christianbeier.droidvnc_ng/.InputService
+			else
+				settings put secure enabled_accessibility_services net.christianbeier.droidvnc_ng/.InputService
+			fi
+		fi
+	fi
+
+	# com.aurora.services
+	exists_auroraservices=$(pm list com.aurora.services | grep -c com.aurora.services)
+	if [ $exists_auroraservices -eq 1 ]; then
+
+		pm grant com.aurora.services android.permission.FOREGROUND_SERVICE
+		appops set com.aurora.services FOREGROUND_SERVICE allow
+		pm grant com.aurora.services android.permission.MANAGE_EXTERNAL_STORAGE
+		appops set com.aurora.services MANAGE_EXTERNAL_STORAGE allow
+		pm grant com.aurora.services android.permission.READ_EXTERNAL_STORAGE
+		appops set com.aurora.services READ_EXTERNAL_STORAGE allow
+		pm grant com.aurora.services android.permission.WRITE_EXTERNAL_STORAGE
+		appops set com.aurora.services WRITE_EXTERNAL_STORAGE allow
+		pm grant com.aurora.services android.permission.QUERY_ALL_PACKAGES
+		appops set com.aurora.services QUERY_ALL_PACKAGES allow
+		pm grant com.aurora.services android.permission.INSTALL_PACKAGES
+		appops set com.aurora.services INSTALL_PACKAGES allow
+		pm grant com.aurora.services android.permission.DELETE_PACKAGES
+		appops set com.aurora.services DELETE_PACKAGES allow
+		pm grant com.aurora.services android.permission.REQUEST_INSTALL_PACKAGES
+		appops set com.aurora.services REQUEST_INSTALL_PACKAGES allow
+		pm grant com.aurora.services android.permission.REQUEST_DELETE_PACKAGES
+		appops set com.aurora.services REQUEST_DELETE_PACKAGES allow
+
+	fi
+
+	# com.bliss.bootsight
+	exists_bootsight=$(pm list packages com.bliss.bootsight | grep -c com.bliss.bootsight)
+	if [ $exists_bootsight -eq 1 ]; then
+		dpm set-active-admin com.bliss.bootsight/android.app.admin.DeviceAdminReceiver
+		if [ ! -f /data/misc/bootsight/default ]; then
+			dpm set-active-admin com.bliss.bootsight/android.app.admin.DeviceAdminReceiver
+			appops set com.bliss.bootsight REQUEST_IGNORE_BATTERY_OPTIMIZATIONS allow
+			pm grant com.bliss.bootsight android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+			pm grant com.bliss.bootsight android.permission.ACCESS_NETWORK_STATE
+			pm grant com.bliss.bootsight android.permission.INTERNET
+			pm grant com.bliss.bootsight android.permission.SYSTEM_ALERT_WINDOW
+			pm grant com.bliss.bootsight android.permission.RECEIVE_BOOT_COMPLETED
+			pm grant com.bliss.bootsight android.permission.READ_PRIVILEGED_PHONE_STATE
+			dumpsys deviceidle whitelist +com.bliss.bootsight
+			# Set config marker
+			mkdir -p /data/misc/bootsight
+			touch /data/misc/bootsight/default
+			chown 1000.1000 /data/misc/bootsight /data/misc/bootsight/*
+			chmod 775 /data/misc/bootsight
+			chmod 664 /data/misc/bootsight/default
+		fi
+	fi
+
 	# GBoard 
 	exists_gboard=$(pm list packages com.google.android.inputmethod.latin | grep -c com.google.android.inputmethod.latin)
 	if [ $exists_gboard -eq 1 ]; then
@@ -66,103 +400,38 @@ set_custom_package_perms()
 		fi
 	fi
 
-	# com.example.screenoverlay
-	exists_screenview=$(pm list com.example.screenoverlay | grep -c com.example.screenoverlay)
-	if [ $exists_screenview -eq 1 ]; then
-		appops set com.example.screenoverlay PROJECT_MEDIA allow
-		pm grant com.example.screenoverlay android.permission.MANAGE_MEDIA_PROJECTION
-		appops set com.example.screenoverlay MANAGE_MEDIA_PROJECTION allow
-		pm grant com.example.screenoverlay android.permission.ACCESS_SURFACE_FLINGER
-		pm grant com.example.screenoverlay android.permission.CAPTURE_SECURE_VIDEO_OUTPUT
-		pm grant com.example.screenoverlay android.permission.SYSTEM_ALERT_WINDOW
-		pm grant com.example.screenoverlay android.permission.INJECT_EVENTS
-		appops set com.example.screenoverlay INJECT_EVENTS allow
-	fi
+	# Vapor Launcher
+	exists_vaporlauncher=$(pm list packages org.vapor.android | grep -c org.vapor.android)
+	if [ $exists_vaporlauncher -eq 1 ]; then
+		if [ ! -f /data/misc/vlconfig/config ]; then
+			# set device config
+			mkdir -p /data/misc/vlconfig
+			touch /data/misc/vlconfig/config
+			chown 1000.1000 /data/misc/vlconfig /data/misc/vlconfig/*
+			chmod 775 /data/misc/vlconfig
+			chmod 664 /data/misc/vlconfig/config
 
-	# com.bliss.bootsight
-	exists_bootsight=$(pm list packages com.bliss.bootsight | grep -c com.bliss.bootsight)
-	if [ $exists_bootsight -eq 1 ]; then
-		if [ ! -f /data/misc/bootsight/default ]; then
-			dpm set-active-admin com.bliss.bootsight/android.app.admin.DeviceAdminReceiver
-			appops set com.bliss.bootsight REQUEST_IGNORE_BATTERY_OPTIMIZATIONS allow
-			pm grant com.bliss.bootsight android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-			pm grant com.bliss.bootsight android.permission.ACCESS_NETWORK_STATE
-			pm grant com.bliss.bootsight android.permission.INTERNET
-			pm grant com.bliss.bootsight android.permission.SYSTEM_ALERT_WINDOW
-			pm grant com.bliss.bootsight android.permission.RECEIVE_BOOT_COMPLETED
-			dumpsys deviceidle whitelist +com.bliss.bootsight
-			# Set config marker
-			mkdir -p /data/misc/bootsight
-			touch /data/misc/bootsight/default
-			chown 1000.1000 /data/misc/bootsight /data/misc/bootsight/*
-			chmod 775 /data/misc/bootsight
-			chmod 664 /data/misc/bootsight/default
+			pm set-home-activity "org.vapor.android/.AppWorker"
+			am start -a android.intent.action.MAIN -c android.intent.category.HOME
 		fi
 	fi
 
-	# BlissRestrictedLauncher
-	exists_restlauncher=$(pm list packages com.bliss.restrictedlauncher | grep -c com.bliss.restrictedlauncher)
-	if [ $exists_restlauncher -eq 1 ]; then
-		# Check to make sure dpm list-owners contains com.bliss.restrictedlauncher/.DeviceAdmin.DeviceOwner.Affiliated
-		# if not set, set it
-		is_owner=$(dpm list-owners | grep com.bliss.restrictedlauncher/)
-		if [ "$is_owner" == "" ]; then
-			dpm set-device-owner com.bliss.restrictedlauncher/.DeviceAdmin
+	# Daijishou Launcher
+	exists_dslauncher=$(pm list packages com.magneticchen.daijishou | grep -c com.magneticchen.daijishou)
+	if [ $exists_dslauncher -eq 1 ]; then
+		if [ ! -f /data/misc/dlconfig/config ]; then
+			# set device config
+			mkdir -p /data/misc/dlconfig
+			touch /data/misc/dlconfig/config
+			chown 1000.1000 /data/misc/dlconfig /data/misc/dlconfig/*
+			chmod 775 /data/misc/dlconfig
+			chmod 664 /data/misc/dlconfig/config
+
+			pm set-home-activity "com.magneticchen.daijishou/.activities.BootstrapActivity"
+			am start -a android.intent.action.MAIN -c android.intent.category.HOME
 		fi
-		if [ ! -f /data/misc/rlconfig/admin ]; then
-			# set device admin
-			dpm set-device-owner com.bliss.restrictedlauncher/.DeviceAdmin
-			if [ $(dpm list-owners | grep com.bliss.restrictedlauncher/) != "" ]; then
-				mkdir -p /data/misc/rlconfig
-				touch /data/misc/rlconfig/admin
-				chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
-				chmod 775 /data/misc/rlconfig
-				chmod 664 /data/misc/rlconfig/admin
-			fi
-		fi
-		# set overlays enabled
-		settings put secure secure_overlay_settings 1
-
-		# allow displaying over other apps if in Go mode
-		settings put system alert_window_bypass_low_ram 1
-
-		pm grant com.bliss.restrictedlauncher android.permission.SYSTEM_ALERT_WINDOW
-		pm set-home-activity "com.bliss.restrictedlauncher/.activities.LauncherActivity"
-		am start -a android.intent.action.MAIN -c android.intent.category.HOME
-
 	fi
 
-	# BlissRestrictedLauncherPro
-	exists_restlauncherpro=$(pm list packages com.bliss.restrictedlauncher.pro | grep -c com.bliss.restrictedlauncher.pro)
-	if [ $exists_restlauncherpro -eq 1 ]; then
-		# Check to make sure dpm list-owners contains com.bliss.restrictedlauncher.pro/.DeviceAdmin.DeviceOwner.Affiliated
-		# if not set, set it
-		is_owner=$(dpm list-owners | grep com.bliss.restrictedlauncher.pro/)
-		if [ "$is_owner" == "" ]; then
-			dpm set-device-owner com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.DeviceAdmin
-		fi
-		if [ ! -f /data/misc/rlpconfig/admin ]; then
-			# set device admin
-			dpm set-device-owner com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.DeviceAdmin
-			if [ $(dpm list-owners | grep com.bliss.restrictedlauncher.pro/) != "" ]; then
-				mkdir -p /data/misc/rlconfig
-				touch /data/misc/rlconfig/admin
-				chown 1000.1000 /data/misc/rlconfig /data/misc/rlconfig/*
-				chmod 775 /data/misc/rlconfig
-				chmod 664 /data/misc/rlconfig/admin
-			fi
-		fi
-		# set overlays enabled
-		settings put secure secure_overlay_settings 1
-
-		# allow displaying over other apps if in Go mode
-		settings put system alert_window_bypass_low_ram 1
-				
-		pm grant com.bliss.restrictedlauncher.pro android.permission.SYSTEM_ALERT_WINDOW
-		pm set-home-activity "com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.activities.LauncherActivity"
-		am start -a android.intent.action.MAIN -c android.intent.category.HOME
-
-	fi
 
 	# Molla Launcher
 	exists_molla=$(pm list packages com.sinu.molla | grep -c com.sinu.molla)
@@ -216,99 +485,7 @@ set_custom_package_perms()
 		am start -a android.intent.action.MAIN -c android.intent.category.HOME
 	fi
 		
-	# SmartDock
-	exists_smartdock=$(pm list packages cu.axel.smartdock | grep -c cu.axel.smartdock)
-	if [ $exists_smartdock -eq 1 ]; then
-		pm grant cu.axel.smartdock android.permission.SYSTEM_ALERT_WINDOW
-		pm grant cu.axel.smartdock android.permission.GET_TASKS
-		pm grant cu.axel.smartdock android.permission.REORDER_TASKS
-		pm grant cu.axel.smartdock android.permission.REMOVE_TASKS
-		pm grant cu.axel.smartdock android.permission.ACCESS_WIFI_STATE
-		pm grant cu.axel.smartdock android.permission.CHANGE_WIFI_STATE
-		pm grant cu.axel.smartdock android.permission.ACCESS_NETWORK_STATE
-		pm grant cu.axel.smartdock android.permission.ACCESS_COARSE_LOCATION
-		pm grant cu.axel.smartdock android.permission.ACCESS_FINE_LOCATION
-		pm grant cu.axel.smartdock android.permission.READ_EXTERNAL_STORAGE
-		pm grant cu.axel.smartdock android.permission.MANAGE_USERS
-		pm grant cu.axel.smartdock android.permission.BLUETOOTH_ADMIN
-		pm grant cu.axel.smartdock android.permission.BLUETOOTH_CONNECT
-		pm grant cu.axel.smartdock android.permission.BLUETOOTH
-		pm grant cu.axel.smartdock android.permission.REQUEST_DELETE_PACKAGES
-		pm grant cu.axel.smartdock android.permission.ACCESS_SUPERUSER
-		pm grant cu.axel.smartdock android.permission.PACKAGE_USAGE_STATS
-		pm grant cu.axel.smartdock android.permission.QUERY_ALL_PACKAGES
-		pm grant cu.axel.smartdock android.permission.WRITE_SECURE_SETTINGS
-		pm grant --user $current_user cu.axel.smartdock android.permission.WRITE_SECURE_SETTINGS
-		appops set cu.axel.smartdock WRITE_SECURE_SETTINGS allow
-		pm grant cu.axel.smartdock android.permission.WRITE_SETTINGS
-		pm grant --user $current_user cu.axel.smartdock android.permission.WRITE_SETTINGS
-		appops set cu.axel.smartdock WRITE_SETTINGS allow
-		pm grant cu.axel.smartdock android.permission.BIND_ACCESSIBILITY_SERVICE
-		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_ACCESSIBILITY_SERVICE
-		appops set cu.axel.smartdock BIND_ACCESSIBILITY_SERVICE allow
-		pm grant cu.axel.smartdock android.permission.BIND_NOTIFICATION_LISTENER_SERVICE
-		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_NOTIFICATION_LISTENER_SERVICE
-		appops set cu.axel.smartdock BIND_NOTIFICATION_LISTENER_SERVICE allow
-		pm grant cu.axel.smartdock android.permission.BIND_DEVICE_ADMIN
-		pm grant --user $current_user cu.axel.smartdock android.permission.BIND_DEVICE_ADMIN
-		appops set cu.axel.smartdock BIND_DEVICE_ADMIN allow
-		pm grant cu.axel.smartdock android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-		pm grant --user $current_user cu.axel.smartdock android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-
-		# set overlays enabled
-		settings put secure secure_overlay_settings 1
-
-		# allow displaying over other apps if in Go mode
-		settings put system alert_window_bypass_low_ram 1
-
-		if [ ! -f /data/misc/sdconfig/accessibility ] && ! pm list packages | grep -q "com.blissos.setupwizard"; then
-			# set accessibility services
-			eas=$(settings get secure enabled_accessibility_services)
-			if [ -n "$eas" ]; then
-				settings put secure enabled_accessibility_services $eas:cu.axel.smartdock/cu.axel.smartdock.services.DockService
-			else
-				settings put secure enabled_accessibility_services cu.axel.smartdock/cu.axel.smartdock.services.DockService
-			fi
-			mkdir -p /data/misc/sdconfig
-			touch /data/misc/sdconfig/accessibility
-			chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
-			chmod 775 /data/misc/sdconfig
-			chmod 664 /data/misc/sdconfig/accessibility
-		fi
-		if [ ! -f /data/misc/sdconfig/notification ]; then
-			# set notification listeners
-			enl=$(settings get secure enabled_notification_listeners)
-			if [ -n "$enl" ]; then
-				settings put secure enabled_notification_listeners $enl:cu.axel.smartdock/cu.axel.smartdock.services.NotificationService
-				
-			else
-				settings put secure enabled_notification_listeners cu.axel.smartdock/cu.axel.smartdock.services.NotificationService
-			fi
-			mkdir -p /data/misc/sdconfig
-			touch /data/misc/sdconfig/notification
-			chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
-			chmod 775 /data/misc/sdconfig
-			chmod 664 /data/misc/sdconfig/notification
-		fi
-		if [ ! -f /data/misc/sdconfig/admin ]; then
-			# set device admin
-			dpm set-active-admin --user current cu.axel.smartdock/android.app.admin.DeviceAdminReceiver
-			mkdir -p /data/misc/sdconfig
-			touch /data/misc/sdconfig/admin
-			chown 1000.1000 /data/misc/sdconfig /data/misc/sdconfig/*
-			chmod 775 /data/misc/sdconfig
-			chmod 664 /data/misc/sdconfig/admin
-		fi
-
-		if [ $(settings get global development_settings_enabled) == 0 ]; then
-			settings put global development_settings_enabled 1
-		fi
-
-		# set launcher
-		SET_SMARTDOCK_DEFAULT=$(getprop persist.glodroid.set_smartdock_default)
-		[ -n "$SET_SMARTDOCK_DEFAULT" ] && pm set-home-activity "cu.axel.smartdock/.activities.LauncherActivity" || pm set-home-activity "com.android.launcher3/.LauncherProvider"
 	
-	fi
 
 	# com.farmerbb.taskbar
 	exists_taskbar=$(pm list packages com.farmerbb.taskbar | grep -c com.farmerbb.taskbar)
@@ -330,6 +507,53 @@ set_custom_package_perms()
 
 		# set overlays enabled
 		settings put secure secure_overlay_settings 1
+	fi
+
+	# com.aurora.store
+	exists_aurora=$(pm list packages com.aurora.store | grep -c com.aurora.store)
+	if [ $exists_aurora -eq 1 ]; then
+		pm grant com.aurora.store android.permission.INTERNET
+		pm grant com.aurora.store android.permission.ACCESS_NETWORK_STATE
+		pm grant com.aurora.store android.permission.FOREGROUND_SERVICE
+		pm grant com.aurora.store android.permission.FOREGROUND_SERVICE_DATA_SYNC
+		pm grant com.aurora.store android.permission.MANAGE_EXTERNAL_STORAGE
+		appops set com.aurora.store MANAGE_EXTERNAL_STORAGE allow
+		pm grant com.aurora.store android.permission.READ_EXTERNAL_STORAGE
+		pm grant com.aurora.store android.permission.WRITE_EXTERNAL_STORAGE
+		pm grant com.aurora.store android.permission.QUERY_ALL_PACKAGES
+		pm grant com.aurora.store android.permission.REQUEST_INSTALL_PACKAGES
+		pm grant com.aurora.store android.permission.REQUEST_DELETE_PACKAGES
+		pm grant com.aurora.store android.permission.ENFORCE_UPDATE_OWNERSHIP
+		pm grant com.aurora.store android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION
+		pm grant com.aurora.store android.permission.POST_NOTIFICATIONS
+		pm grant com.aurora.store android.permission.USE_CREDENTIALS
+		pm grant com.aurora.store android.permission.RECEIVE_BOOT_COMPLETED
+		pm grant com.aurora.store android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+		pm grant com.aurora.store android.permission.WAKE_LOCK
+		pm grant com.aurora.store android.permission.DELETE_PACKAGES
+		appops set com.aurora.store BIND_DEVICE_ADMIN allow
+
+		if [ ! -f /data/misc/auroraconfig/admin ]; then
+			# set device admin
+			dpm set-active-admin --user current com.aurora.store/.data.receiver.DeviceOwnerReceiver
+			mkdir -p /data/misc/auroraconfig
+			touch /data/misc/auroraconfig/admin
+			chown 1000.1000 /data/misc/auroraconfig /data/misc/auroraconfig/*
+			chmod 775 /data/misc/auroraconfig
+			chmod 664 /data/misc/auroraconfig/admin
+		fi
+	fi
+
+	# com.hardbacknutter.sshd
+	exists_sshd=$(pm list packages com.hardbacknutter.sshd | grep -c com.hardbacknutter.sshd)
+	if [ $exists_sshd -eq 1 ]; then
+		pm grant com.hardbacknutter.sshd android.permission.INTERNET
+		pm grant com.hardbacknutter.sshd android.permission.RECEIVE_BOOT_COMPLETED
+		pm grant com.hardbacknutter.sshd android.permission.FOREGROUND_SERVICE
+		pm grant com.hardbacknutter.sshd android.permission.FOREGROUND_SERVICE_SPECIAL_USE
+		pm grant com.hardbacknutter.sshd android.permission.POST_NOTIFICATIONS
+		pm grant com.hardbacknutter.sshd android.permission.MANAGE_EXTERNAL_STORAGE
+		appops set com.hardbacknutter.sshd MANAGE_EXTERNAL_STORAGE allow
 	fi
 
 	# MicroG: com.google.android.gms
@@ -401,6 +625,8 @@ function init_bass_rotation_props()
 							set_property persist.debug.per_window_input_rotation "$SET_PER_WINDOW_INPUT_ROTATION"
 							;;
 						SET_SF_ROTATION=*)
+							# Set SurfaceFlinger rotation (0, 90, 180, 270)
+							# 0, 90, 180, 270
 							set_property ro.sf.hwrotation "$SET_SF_ROTATION"
 							;;
 						SET_TOUCHSCREEN_ROTATION=*)
@@ -420,6 +646,7 @@ function init_bass_rotation_props()
 							set_property config.override_forced_orient "$SET_OVERRIDE_FORCED_ORIENT"
 							;;
 						SET_SYS_APP_ROTATION=*)
+							# Forces system app orientation (force_land, middle_port, original)
 							# property: persist.sys.app.rotation has three cases:
 							# 1.force_land: always show with landscape, if a portrait apk, system will scale up it
 							# 2.middle_port: if a portrait apk, will show in the middle of the screen, left and right will show black
@@ -436,26 +663,6 @@ function init_bass_rotation_props()
 				;;
 		esac
 	done
-}
-
-function set_device_props()
-{
-	# Set device props
-	has_build=$(getprop ro.bliss.build)
-	has_serial=$(getprop ro.bliss.serialnumber)
-	has_fingerprint=$(getprop ro.bliss.fingerprint)
-	if [ -z "$has_build" ]; then
-		thisbuildid=$(getprop ro.bass.build)
-		set_property ro.bliss.build $thisbuildid
-	fi
-
-	if [ -z "$has_serial" ]; then
-		thisserialid=$(getprop ro.serialno)
-		set_property ro.bliss.serialnumber $thisserialid
-	fi
-
-	set_property ro.bliss.fingerprint $(getprop ro.build.fingerprint)
-	
 }
 
 function set_lowmem()
@@ -551,6 +758,19 @@ function set_usb_mode()
 							fi
         					set_property persist.usb.debug "$FORCE_USE_ADB_MASS_STORAGE"
 							;;
+						SET_USB_CONFIG=*)
+							# Set USB config
+							# Options:
+							# none
+							# adb 
+							# accessory
+							# accessory,adb
+							# audio_source
+							# audio_source,adb
+							# accessory,audio_source
+							# accessory,audio_source,adb
+							set_property persist.sys.usb.config "$SET_USB_CONFIG"
+							;;
 					esac
 				fi
 				;;
@@ -635,6 +855,32 @@ function set_package_opts()
 								fi
                             done
                             ;;
+						BASS_TABLETUI=1)
+							rm_rl_admin
+							rm_rlp_admin
+							rm_sd_admin
+							pm hide cu.axel.smartdock
+							pm hide com.bliss.restrictedlauncher
+							pm hide com.bliss.restrictedlauncher.pro
+							;;
+						BASS_DESKTOPUI=1)
+							rm_rl_admin
+							rm_rlp_admin
+							pm unhide cu.axel.smartdock
+							sleep 1
+							pm hide com.bliss.restrictedlauncher
+							pm hide com.bliss.restrictedlauncher.pro
+							smartdock_perms
+							;;
+						BASS_KIOSKUI=1)
+							rm_sd_admin
+							pm hide cu.axel.smartdock
+							pm unhide com.bliss.restrictedlauncher
+							pm unhide com.bliss.restrictedlauncher.pro
+							sleep 1
+							restricted_perms
+							restricted_pro_perms
+							;;
                     esac
                 fi
                 ;;
@@ -642,6 +888,7 @@ function set_package_opts()
     done
 	
 }
+
 
 function set_custom_settings()
 {
@@ -701,19 +948,16 @@ function set_custom_settings()
 						FORCE_USE_ADB_CLIENT_MODE=3)
 							settings put global adb_enabled 1
 							settings put global adb_wifi_enabled 1 
-							;;						
-						BASSEDW=1)
-							# Enable other PC mode related changes
-							device_config put lse_desktop_experience com.android.window.flags.enable_desktop_windowing true
-							device_config put lse_desktop_experience com.android.window.flags.enable_desktop_windowing_mode true
 							;;
-						BASSDM=1)
+						BASSDM=*)
 							# Enable BASSDM
-							setprop persist.wm.debug.desktop_mode true
+							setprop persist.wm.debug.desktop_mode "$BASSDM"
+							setprop persist.sys.debug.desktop_mode "$BASSDM"
 							;;
-						BASSDM2=1)
+						BASSDM2=*)
 							# Enable BASSDM2
-							setprop persist.wm.debug.desktop_mode_2 true
+							setprop persist.wm.debug.desktop_mode_2 "$BASSDM2"
+							setprop persist.sys.debug.desktop_mode_2 "$BASSDM2"
 							;;
                     esac
                 fi
@@ -742,6 +986,32 @@ function set_custom_timezone()
 		esac
 	done
 	
+}
+
+# Serial Number - redundant but useful
+function init_serial_number()
+{
+	DMIPATH=/sys/class/dmi/id	
+	SERIALNO=$(cat $DMIPATH/product_serial)
+	setprop ro.bliss.factory.serialnumber "$SERIALNO"
+
+	DEFAULT_SERIAL_NUMBERS="System Serial Number:Default string:0123456789:1234567890:123456789:00000000:XXXXXXXX:To be filled by O.E.M.:To Be Filled By O.E.M.:ABCDEF0123456789:Type1 - 123456789:0:0123456789ABCDEF:unknown:N/A:FFFFFFFF:ffffffff"
+	DEFAULT_SERIAL_NUMBERS=${DEFAULT_SERIAL_NUMBERS//:/$'  '}
+	exists_sn=$(echo ${DEFAULT_SERIAL_NUMBERS} | grep -c "$SERIALNO")
+	if [[ $exists_sn -ge 1 ]] || [[ -z "$SERIALNO" ]]; then
+		PRODUCT_UUID=$(cat /sys/class/dmi/id/product_uuid)
+		UUID=$(dmidecode -t 4 | grep ID | sed 's/.*ID://;s/ //g')
+		COMBINED_STRING="$PRODUCT_UUID$UUID"
+		FINALSERIALNO=$(echo -n "$COMBINED_STRING" | sha256sum | cut -c1-15)
+	fi
+
+	if [ -n "$FINALSERIALNO" ]; then
+		SERIALNO="GSN-$FINALSERIALNO"
+	fi
+
+	set_property ro.bliss.serialnumber "$SERIALNO"
+	set_property ro.bass.serialnumber "$SERIALNO" 
+	set_property ro.serialno "$SERIALNO"
 }
 
 function init_bass_options()
@@ -790,8 +1060,24 @@ function init_bass_options()
 							# Force disable recents
 							# options: true, false
 							set_property persist.bliss.disable_recents "$FORCE_DISABLE_RECENTS"
-							;;					
+							;;
+						FORCE_MOUSE_PRESENTATION=*)
+							# Set mouse presentation
+							# options: 0. 1
+							set_property persist.mouse.presentation "$FORCE_MOUSE_PRESENTATION"
+							;;
+						SET_P_CG=*)
+							# Set mouse presentation
+							# options: 0. 1
+							set_property persist.pointer.choreographer "$SET_P_CG"
+							;;
+						SET_RMB=*)
+							# Set right mouse button as back key
+							# options: true, false
+							set_property persist.mouse.right_mouse_as_back "$SET_RMB"
+							;;
 						SET_LOGCAT_DEBUG=*)
+							# Set logcat debug (1)
 							set_property debug.logcat "$SET_LOGCAT_DEBUG"
 							;;
 						SUSPEND_TYPE=*)
@@ -807,6 +1093,11 @@ function init_bass_options()
 							# set power off double click
 							# options: true,false
 							set_property poweroff.doubleclick "$PWR_OFF_DBLCLK"
+							;;
+						PWR_NON_BOOT_CPU=*)
+							# set non-boot CPU to not power off
+							# options: 0,1
+							set_property power.nonboot-cpu-off "$PWR_NON_BOOT_CPU"
 							;;
 						SET_USB_BUS_PORTS=*)
 							# Set USB bus ports
@@ -843,7 +1134,7 @@ function init_bass_options()
 						BOOT_FACTORY_TEST=*)
 							# Boot into factory test mode
 							# options: 0, 1
-							set_property ro.factorytest "$BOOT_FACTORY_MODE"
+							set_property ro.factorytest "$BOOT_FACTORY_TEST"
 							;;
 						FORCE_NAVBAR_ON_SECONDARY_DISPLAYS=*)
 							# Force navigation bar on secondary displays
@@ -854,6 +1145,37 @@ function init_bass_options()
 							# Force IME on secondary displays
 							# options: 0, 1
 							set_property ro.boot.bliss.force_ime_on_all_displays "$FORCE_IME_ON_SECONDARY_DISPLAYS"
+							;;
+						DISABLE_MIRROR_DISPLAY=*)
+							# Disable mirror display
+							# options: true, false
+							set_property ro.boot.display_mirror.disable "$DISABLE_MIRROR_DISPLAY"
+							;;
+						DISABLE_MIRROR_DISPLAY_DIALOG=*)
+							# Disable mirror display dialog
+							# options: 0, 1
+							set_property persist.sysui.disable_mirroring_confirmation_dialog "$DISABLE_MIRROR_DISPLAY_DIALOG"
+							;;
+						DISMISS_USB_ACCESS_DIALOG=*)
+							# Check if the property ro.boot.bliss.dismiss_usb_access_dialog is true
+							# options: 0, 1
+							set_property ro.boot.bliss.dismiss_usb_access_dialog "$DISMISS_USB_ACCESS_DIALOG"
+							;;
+						BASSEDW=*)
+							# Enable other PC mode related changes
+							# Options: true, false
+							device_config put lse_desktop_experience com.android.window.flags.enable_desktop_windowing "$BASSEDW"
+							device_config put lse_desktop_experience com.android.window.flags.enable_desktop_windowing_mode "$BASSEDW"
+							;;
+						IGNORE_DEFAULT_DISPLAY_SLEEP=*)
+							# Ignore default display sleep
+							# Options: true, false
+							set_property persist.ignore.default_display_sleep "$IGNORE_DEFAULT_DISPLAY_SLEEP"
+							;;
+						IGNORE_HDMI_DISPLAY_SLEEP=*)
+							# Ignore HDMI display sleep
+							# Options: true, false
+							set_property persist.ignore.hdmi_display_sleep "$IGNORE_HDMI_DISPLAY_SLEEP"
 							;;
 					esac
 				fi
@@ -871,29 +1193,24 @@ function do_bass_netconsole()
 function do_bass_init()
 {
 	set_lowmem
+	set_multidisplay_options
 	set_usb_mode
 	set_max_logd
-	set_custom_timezone
-	set_device_props
+	set_custom_timezone	
 	init_bass_rotation_props
 }
 
 
 function do_bass_bootcomplete()
 {
-	# check wifi setup
-	FILE_CHECK=/data/misc/wifi/wpa_supplicant.conf
 
-	if [ ! -f "$FILE_CHECK" ]; then
-	    cp -a /system/etc/wifi/wpa_supplicant.conf $FILE_CHECK
-            chown 1010.1010 $FILE_CHECK
-            chmod 660 $FILE_CHECK
-	fi
-
+	init_serial_number
+	set_package_opts
 	set_custom_package_perms
 	set_custom_settings
-	set_package_opts
 
+	[ -z $first_run ] && setprop persist.bass.first_run $(date +'%Y%m%d%H%M%S')
+	set_boot_config_perms
 	post_bootcomplete
 }
 

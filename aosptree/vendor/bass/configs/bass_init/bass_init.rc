@@ -1,18 +1,4 @@
-service bass_init /system/bin/sh /vendor/etc/bass_init/bass_init.sh init
-    user root
-    group root
-    seclabel u:r:init:s0
-    disabled
-    oneshot
-
-service bass_bootcomplete /system/bin/sh /vendor/etc/bass_init/bass_init.sh bootcomplete
-    user root
-    group root
-    seclabel u:r:init:s0
-    disabled
-    oneshot
-
-service bass_netconsole /system/bin/sh /vendor/etc/bass_init/bass_init.sh netconsole
+service logmonster /system/bin/logwrapper /system/bin/logmonster.sh all /sdcard/Documents
     user root
     group root
     seclabel u:r:init:s0
@@ -20,16 +6,10 @@ service bass_netconsole /system/bin/sh /vendor/etc/bass_init/bass_init.sh netcon
     oneshot
 
 on post-fs
-    start bass_init
+    exec u:r:init:s0 -- /system/bin/logwrapper /system/bin/sh /vendor/etc/bass_init/bass_init.sh init
 
 on property:sys.boot_completed=1
     exec u:r:init:s0 -- /system/bin/logwrapper /system/bin/sh /vendor/etc/bass_init/bass_init.sh bootcomplete
-
-# on property:sys.boot_completed=1
-#    start bass_bootcomplete
-
-# on property:net.dns1=*
-#     start bass_netconsole
 
 on property:net.dns1=*
     exec u:r:init:s0 -- /system/bin/logwrapper /system/bin/sh /vendor/etc/bass_init/bass_init.sh netconsole
