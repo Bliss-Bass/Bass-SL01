@@ -3,6 +3,7 @@ include vendor/bass/configs/watermark.mk
 include vendor/bass/configs/signing.mk
 $(call inherit-product, vendor/agp-apps/agp-apps.mk)
 $(call inherit-product, vendor/foss/foss.mk)
+$(call inherit-product-if-exists, $(LOCAL_PATH)/prebuilts/bootsight/bootsight.mk)
 
 PRODUCT_SOONG_NAMESPACES += vendor/bass
 PRODUCT_BROKEN_VERIFY_USES_LIBRARIES := true
@@ -42,6 +43,41 @@ PRODUCT_PACKAGES += \
 # packages we like
 PRODUCT_PACKAGES += \
     nano
+
+    # Bass init
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/bass_init/bass_init.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/bass_init.rc                       \
+    $(LOCAL_PATH)/configs/bass_init/bass_init.sh:$(TARGET_COPY_OUT_VENDOR)/etc/bass_init/bass_init.sh
+
+
+# Bootsight Service
+PRODUCT_PACKAGES += \
+    BootSight \
+    com.bliss.bootsight-permissions.xml \
+    whitelist-com.bliss.bootsight.xml \
+    com.bliss.bootsight-default-permissions.xml
+
+
+ifneq ($(REMOVE_TERMUX_X11_SCRIPT),true)
+# Add Termux-x11 script
+#
+# Usage:
+# $ install-termux-x11
+PRODUCT_COPY_FILES += \
+    vendor/bass/prebuilts/termux-x11-xfce4/lib/install:system/bin/install-termux-x11 
+endif
+
+ifneq ($(REMOVE_LOG_MONSTER),true)
+# Add logmonster script
+PRODUCT_COPY_FILES += \
+    vendor/bass/prebuilts/log_monster/log_monster.sh:system/bin/logmonster.sh
+endif
+
+ifeq ($(USE_BLISS_BOOT_CONFIG),true)
+PRODUCT_PACKAGES += \
+    com.bliss.bootconfig
+
+endif
 
 ifeq ($(USE_PER_DISPLAY_FOCUS),true)
 
@@ -110,7 +146,9 @@ endif
 ifeq ($(USE_BLISS_SETUPWIZARD), true)
 PRODUCT_PACKAGES += \
     BlissSetupWizard \
-    LineageSetupWizard
+    LineageSetupWizard \
+    LMOSetupWizard \
+    SetupWizard
 
 # SeedVault
 PRODUCT_PACKAGES += \
@@ -230,7 +268,18 @@ ifeq ($(INCLUDE_AGPRIVAPPS), true)
 include vendor/ag_privapp/ag_privapp.mk
 endif
 
-# Bliss Power Manager
+ifeq ($(INCLUDE_GENERIC_MDM), true)
+include vendor/genericmdm/ag_privapp.mk
+endif
+
+ifeq ($(FORCE_WIN_AS_HOME),true)
+    PRODUCT_PROPERTY_OVERRIDES += \
+        ro.boot.force.win_as_home=1
+
+endif
+
+
+# Calyx MicroG
 ifeq ($(USE_CALYX_MICROG), true)
 PRODUCT_PACKAGES += \
     GmsCore \
@@ -242,12 +291,68 @@ PRODUCT_PACKAGES += \
 
 endif
 
-ifeq ($(FORCE_WIN_AS_HOME),true)
+# Calyx Aurora Store
+ifeq ($(USE_CALYX_AURORA), true)
+PRODUCT_PACKAGES += \
+    fdroid-repo \
+    aurora-store \
+    AuroraStore
+
+endif
+
+
+ifeq ($(USE_LINDROID),true)
     PRODUCT_PROPERTY_OVERRIDES += \
-        ro.boot.force.win_as_home=1
+        ro.boot.enable_console=true
+
+endif
+
+# ifneq (,$(filter true,$(USE_SMARTDOCK_B) $(USE_SMARTDOCK) $(USE_DESKTOP_MODE_ON_SECONDARY_DISPLAY)))
+#   PRODUCT_PROPERTY_OVERRIDES += persist.wm.debug.desktop_mode=true
+# endif
+
+ifeq ($(ADD_WATERMARK),true)
+# Watermark for Bliss Bass test builds
+# Fields are:
+# text%fontsize%deltax%deltay%shadowcolor%color%shadowradius%shadowdx%shadowdy
+# For more info, see:
+# frameworks/base/services/core/java/com/android/server/wm/Watermark.java
+# and to configure the watermark, see:
+# vendor/bass/configs/watermark/create_watermark/README.md (access required)
+PRODUCT_COPY_FILES += \
+    vendor/bass/configs/watermark/watermark.conf:system/etc/setup.conf
+endif
+
+ifeq ($(ADDON_WALLPAPER),true)
+# Wallpaper addon for Bliss Bass test builds
+#
+# Usage: 
+# $ adb push wallpaper.png /sdcard/Downloads/
+# $ adb shell changewallpaper /sdcard/Downloads/wallpaper.png
+PRODUCT_COPY_FILES += \
+    vendor/bass/prebuilts/wallpaperchanger/wallpaperchanger.dex:system/etc/wallpaperchanger.dex \
+    vendor/bass/prebuilts/wallpaperchanger/changewallpaper:system/bin/changewallpaper
+endif
+
+ifeq ($(ADD_VNCFLINGER),true)
+PRODUCT_PACKAGES += \
+    DesktopMode \
+    VncFlinger
 
 endif
 
 # Copy any Permissions files, overriding anything if needed
 $(foreach f,$(wildcard $(LOCAL_PATH)/permissions/*.xml),\
     $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/$(notdir $f)))
+
+ifeq ($(INCLUDE_VENDOR_INPUT), true)
+
+# Copy any vendor specific input configs if found
+$(foreach f,$(wildcard $(LOCAL_PATH)/templates/vendor/etc/*.xml),\
+    $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_VENDOR)/etc/$(notdir $f)))
+
+endif
+
+# Copy any product specific input configs if found
+$(foreach f,$(wildcard $(LOCAL_PATH)/templates/product/media/*),\
+    $(eval PRODUCT_COPY_FILES += $(f):$(TARGET_COPY_OUT_PRODUCT)/media/$(notdir $f)))
