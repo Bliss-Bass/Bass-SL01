@@ -946,7 +946,7 @@ export BASS_BUILD_FILENAME="${BASS_BUILD_PRE}${BASS_BUILD_POST}-${BASS_VERSION}_
 export BASS_BUILD_FINGERPRINT="${BASS_BUILD_PRE}/${BASS_VERSION}/${BASS_BUILD_POST}/${BASS_BUILD_DATE}"
 
 if [ "$BLISS_PRODUCTION_BUILD" = "true" ]; then
-    if [ ! -d "vendor/bliss/config/signing" ]; then
+    if [[ ! -d "vendor/bliss/config/signing" ]] && [[ ! -d "vendor/bass/configs/signing" ]]; then
         echo " Missing signing keys. Would you like to generate them? (y/n)" && read ANSWER
         if [ "$ANSWER" = "y" ]; then
             echo "Generating signing keys..."
