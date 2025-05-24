@@ -8,7 +8,7 @@
         {
           "name": "Apply Patches",
           "descr": "",
-          "command": "bash vendor/bass/bass/tools/vcl-apply-patches.sh",
+          "command": "bash vendor/bass/branding/tools/vcl-apply-patches.sh",
           "dependencies": [
             {
                 "dep": "test ! -f vendor/bass/.config/patches_applied.cfg"
@@ -18,7 +18,7 @@
         {
           "name": "Update Wallpaper",
           "descr": "",
-          "command": "bash vendor/bass/bass/tools/vcl-wallpaper.sh",
+          "command": "bash vendor/bass/branding/tools/vcl-wallpaper.sh",
           "dependencies": [
             {
                 "dep": "test -f vendor/bass/.config/patches_applied.cfg"
@@ -28,7 +28,7 @@
         {
           "name": "Update Grub Background",
           "descr": "",
-          "command": "bash vendor/bass/bass/tools/vcl-grub.sh",
+          "command": "bash vendor/bass/branding/tools/vcl-grub.sh",
           "dependencies": [
             {
                 "dep": "test -f vendor/bass/.config/patches_applied.cfg"
@@ -38,7 +38,7 @@
         {
           "name": "Package up bootanimation frames",
           "descr": "",
-          "command": "bash vendor/bass/bass/tools/vcl-bootanimation.sh",
+          "command": "bash vendor/bass/branding/tools/vcl-bootanimation.sh",
           "dependencies": [
             {
                 "dep": "test -f vendor/bass/.config/patches_applied.cfg"
@@ -48,7 +48,7 @@
         {
           "name": "Rebrand Project Name",
           "descr": "",
-          "command": "bash vendor/bass/bass/tools/vcl-project-refactor.sh",
+          "command": "bash vendor/bass/branding/tools/vcl-project-refactor.sh",
           "dependencies": [
             {
                 "dep": "test -f vendor/bass/.config/patches_applied.cfg"

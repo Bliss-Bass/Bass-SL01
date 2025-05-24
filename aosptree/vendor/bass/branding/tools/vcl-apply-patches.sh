@@ -11,8 +11,8 @@
 SCRIPT_PATH=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 PARENT_PATH="$(dirname "$SCRIPT_PATH")"
 echo "SCRIPT_PATH: $SCRIPT_PATH"
-source $PARENT_PATH/includes/core-menu/includes/easybashgui
-source $PARENT_PATH/includes/core-menu/includes/common.sh
+source $PARENT_PATH/../includes/core-menu/includes/easybashgui
+source $PARENT_PATH/../includes/core-menu/includes/common.sh
 export supertitle="Bliss-Bass Vendor Customization"
 
 do_check_patchsets() 
@@ -23,8 +23,8 @@ do_check_patchsets()
     #     echo "[lunch] Couldn't locate the top of the tree.  Try setting TOP." >&2
     #     return
     # fi
-    # Find the first folder in $PARENT_PATH/patches/patchsets
-    are_patchsets=`ls $PARENT_PATH/patches/patchsets`
+    # Find the first folder in $PARENT_PATH/../patches/patchsets
+    are_patchsets=`ls $PARENT_PATH/../patches/patchsets`
     if [ ! "$are_patchsets" ]; then
         echo "[lunch] No patchsets found"
         return
@@ -32,7 +32,7 @@ do_check_patchsets()
         echo "[lunch] Patchsets found"
         if [ "$patchset_type" != "" ]; then
             if [ -d $patchset_type ]; then
-                bash $PARENT_PATH/patches/autopatch.sh $patchset_type
+                bash $PARENT_PATH/../patches/autopatch.sh $patchset_type
             else
                 echo "No patchsets found for $patchset_type"
             fi
@@ -42,10 +42,10 @@ do_check_patchsets()
     fi
 }
 
-# Read folder names of $PARENT_PATH/patches/* to a list
-# PATCHSET_NAMES=$(ls $PARENT_PATH/patches)
-PATCHSET_NAMES=$(ls $PARENT_PATH/patches )
-# PATCHSET_NAMES=$(find $PARENT_PATH/patches -maxdepth 0 -type d -ls)
+# Read folder names of $PARENT_PATH/../patches/* to a list
+# PATCHSET_NAMES=$(ls $PARENT_PATH/../patches)
+PATCHSET_NAMES=$(ls $PARENT_PATH/../patches/.. )
+# PATCHSET_NAMES=$(find $PARENT_PATH/../patches -maxdepth 0 -type d -ls)
 echo "PATCHSET_NAMES: $PATCHSET_NAMES"
 MENU_ITEMS=()
 prefix="patchsets-"
@@ -62,7 +62,7 @@ done
 menu ${MENU_ITEMS[@]}
 patchsets_answer=$(0<"${dir_tmp}/${file_tmp}")
 if [[ "$patchsets_answer" == "BlissOS" ]]; then
-    do_check_patchsets "$PARENT_PATH/patches/patchsets"
+    do_check_patchsets "$PARENT_PATH/../patches/patchsets"
 else
     do_check_patchsets "$prefix$patchsets_answer"
 fi
