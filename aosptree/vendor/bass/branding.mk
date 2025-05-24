@@ -5,7 +5,7 @@ include vendor/bass/configs/signing.mk
 include vendor/bass/configs/versions.mk
 $(call inherit-product, vendor/agp-apps/agp-apps.mk)
 $(call inherit-product, vendor/foss/foss.mk)
-$(call inherit-product-if-exists, $(LOCAL_PATH)/prebuilts/bootsight/bootsight.mk)
+$(call inherit-product-if-exists, vendor/ag_privapp/ag_privapp.mk)
 
 PRODUCT_SOONG_NAMESPACES += vendor/bass
 PRODUCT_BROKEN_VERIFY_USES_LIBRARIES := true
