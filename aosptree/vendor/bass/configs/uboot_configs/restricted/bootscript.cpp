@@ -115,6 +115,28 @@ FUNC_BEGIN(bootcmd_prepare_env)
  FEXTENV(bootargs, " androidboot.boot_devices=\${bootdevice_path}") ;
 FUNC_END()
 
+FUNC_BEGIN(bootmode_set)
+  echo " ";
+
+  if test "$bootmode_input" = "1"; then
+    setenv bliss_bootmode lockdown;
+    echo "Booting in Lockdown Mode";
+  elif test "$bootmode_input" = "2"; then
+    setenv bliss_bootmode admin;
+    echo "Booting in Admin Mode";
+  else
+    setenv bootmode_input 1;
+    setenv bliss_bootmode lockdown;
+    echo "Invalid input. Booting in Lockdown Mode";
+  fi
+
+  FEXTENV(bootargs, " androidboot.bliss.bootmode=\${bliss_bootmode}");
+  FEXTENV(bootargs, " BASS_KIOSKUI=1");
+  /* START KERNEL */
+  bootm \$abootimg_boot_ptr
+  /* Should never get here */
+FUNC_END()
+
 FUNC_BEGIN(bootcmd_start)
  if test STRESC(\${androidrecovery}) != STRESC(true);
  then
@@ -133,46 +155,24 @@ FUNC_BEGIN(bootcmd_start)
 #ifdef POSTPROCESS_FDT
  POSTPROCESS_FDT()
 #endif
- setenv bootmode_timeout 10
- setenv bootmode_default 1
+ setenv bootmode_timeout 5;
+ setenv bootmode_default 1;
+ 
+ //  setenv bootmode_input 2;
+ setenv bootmode_input 1;
 
  cls;
  
  echo " ";
  echo "=================================================";
- echo "Bass Pi 14.0.0";
+ echo "Bass Pi 14.0.1";
  echo "=================================================";
  echo " ";
- echo "Boot Mode Menu";
- echo "1. Lockdown Mode";
- echo "2. Admin Mode";
  echo " ";
-
- setenv bootmode_input "";
  
- askenv bootmode_input "Enter choice (1/2): ";
+ run bootmode_set;
 
- if test -z "$bootmode_input"; then
-     setenv bootmode_input ${bootmode_default};
- fi
- 
- echo " ";
-
- if test "$bootmode_input" = "1"; then
-     setenv bliss_bootmode lockdown;
-     echo "Booting in Lockdown Mode";
- elif test "$bootmode_input" = "2"; then
-     setenv bliss_bootmode admin;
-     echo "Booting in Admin Mode";
- else
-     setenv bootmode_input ${bootmode_default};
-     echo "Invalid input. Booting in Lockdown Mode";
- fi
-
- FEXTENV(bootargs, " androidboot.bliss.bootmode=\${bliss_bootmode}");
- /* START KERNEL */
- bootm \$abootimg_boot_ptr
- /* Should never get here */
+   
 FUNC_END()
 
 FUNC_BEGIN(bootcmd_block)
