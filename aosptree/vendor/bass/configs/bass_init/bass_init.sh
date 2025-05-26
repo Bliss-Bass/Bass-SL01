@@ -181,19 +181,19 @@ function restricted_pro_perms()
 		pm set-home-activity "com.bliss.restrictedlauncher.pro/com.bliss.restrictedlauncher.activities.LauncherActivity"
 		am start -a android.intent.action.MAIN -c android.intent.category.HOME
 
-		if [ -f /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst ]; then
-			if [ ! -f /data/misc/rlpconfig/whitelist ]; then
-				echo -e "\ncom.android.printservice.recommendation" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
-				echo -e "com.android.printspooler" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
-				echo -e "com.android.systemui" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
-				echo -e "com.android.packageinstaller" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst				
-				mkdir -p /data/misc/rlpconfig
-				touch /data/misc/rlpconfig/whitelist
-				chown 1000.1000 /data/misc/rlpconfig /data/misc/rlpconfig/*
-				chmod 775 /data/misc/rlpconfig
-				chmod 664 /data/misc/rlpconfig/whitelist
-			fi
-		fi
+		# if [ -f /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst ]; then
+		# 	if [ ! -f /data/misc/rlpconfig/whitelist ]; then
+		# 		echo -e "\ncom.android.printservice.recommendation" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
+		# 		echo -e "com.android.printspooler" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
+		# 		echo -e "com.android.systemui" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst
+		# 		echo -e "com.android.packageinstaller" >> /data/data/com.bliss.restrictedlauncher.pro/files/whitelist.lst				
+		# 		mkdir -p /data/misc/rlpconfig
+		# 		touch /data/misc/rlpconfig/whitelist
+		# 		chown 1000.1000 /data/misc/rlpconfig /data/misc/rlpconfig/*
+		# 		chmod 775 /data/misc/rlpconfig
+		# 		chmod 664 /data/misc/rlpconfig/whitelist
+		# 	fi
+		# fi
 	fi
 
 }
@@ -1206,7 +1206,7 @@ function do_bass_bootcomplete()
 
 	init_serial_number
 	set_package_opts
-	set_custom_package_perms
+	# set_custom_package_perms
 	set_custom_settings
 
 	[ -z $first_run ] && setprop persist.bass.first_run $(date +'%Y%m%d%H%M%S')
