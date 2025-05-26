@@ -1,0 +1,1 @@
+bash build_bass_rpi4.sh --clean --title Bass_SL01 --blissbuildvariant vanilla --specialvariant "-Android_14.0" --alwaysonsettings --tabletnav --nolarge --dvncp --production --pwir --wiz --noksu --bassid "BASS.DEMO.SL.01.001" --isgo --supervanilla --wpaddon --bbo --pdfe --useampl --restrictedlauncherpro --rlptype "SL"
