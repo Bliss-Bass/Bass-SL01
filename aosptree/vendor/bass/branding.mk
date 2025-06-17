@@ -37,8 +37,8 @@ PRODUCT_PROPERTY_OVERRIDES := \
     persist.logd.size.crash="1M"
 
 # Bootanimation
-TARGET_SCREEN_WIDTH ?= 800
-TARGET_SCREEN_HEIGHT ?= 800
+TARGET_SCREEN_WIDTH ?= 400
+TARGET_SCREEN_HEIGHT ?= 400
 PRODUCT_PACKAGES += \
     bootanimation.zip
 
