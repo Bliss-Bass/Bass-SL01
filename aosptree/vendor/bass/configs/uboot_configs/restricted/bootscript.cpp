@@ -18,6 +18,9 @@ PLATFORM_SETUP_ENV()
 
 setenv dtb_index 0x0
 
+/* Silent console output */ 
+setenv silent 1
+
 /* EMMC cards have 512k erase block size. Align partitions accordingly to avoid issues with erasing. */
 
 setenv partitions "uuid_disk=\${uuid_gpt_disk}"
@@ -161,15 +164,15 @@ FUNC_BEGIN(bootcmd_start)
  //  setenv bootmode_input 2;
  setenv bootmode_input 1;
 
- cls;
- 
+ setenv silent  ;
+ cls; 
  echo " ";
  echo "=================================================";
  echo "Bass Pi 14.0.1";
  echo "=================================================";
  echo " ";
- echo " ";
- 
+ echo "Created by Navotpala Tech";
+ setenv silent 1;
  run bootmode_set;
 
    
