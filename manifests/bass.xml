@@ -5,6 +5,7 @@
   <remote name="bb-gl" fetch="ssh://git@gitlab.com/Bliss-Bass/" />
   <remote name="sglab" fetch="ssh://git@gitlab.com/" />
   <remote name="hglab" fetch="https://gitlab.com/" />
+  <remote name="hghub" fetch="https://github.com/" />
 
   <!-- Public Projects -->
   <remove-project name="glodroid_external_apks.git" />
@@ -13,7 +14,7 @@
   <project path="glodroid" remote="sghub" name="GloDroid/glodroid_configuration" revision="refs/tags/basedir-v0.9.0" />
   <project path="glodroid/configuration" name="glodroid_configuration" remote="bb" revision="fd8ce7d2869a9f544a5732a5d49bf9b1028fb824" />
   <!-- <remove-project name="platform_packages_apps_SetupWizard" /> -->
-  <!-- <project path="packages/apps/SetupWizard" name="platform_packages_apps_SetupWizard" remote="bb" revision="bass-12.1" /> -->
+  <project path="packages/apps/SetupWizard" name="Bliss-Bass/platform_packages_apps_SetupWizard" remote="hghub" revision="bass-15.0" />
   <!-- <project path="packages/apps/Seedvault" name="LineageOS/android_packages_apps_Seedvault" remote="ghub" revision="lineage-19.1" /> -->
   <!-- <remove-project name="platform/packages/apps/Gallery2" /> -->
   <!-- <project path="packages/apps/Gallery2" name="platform_packages_apps_Gallery2" remote="bb" revision="bass-12.1" /> -->
@@ -44,5 +45,8 @@
 
   <!-- CalyxOS -->
   <project path="prebuilts/calyx/microg" name="CalyxOS/platform_prebuilts_calyx_microg" sync-s="true" remote="hglab" revision="android14" />
+
+  <!-- LineageOS -->
+  <project path="packages/apps/Jelly" name="LineageOS/android_packages_apps_Jelly" sync-s="true" remote="hghub" revision="lineage-21.0" />
   
 </manifest>

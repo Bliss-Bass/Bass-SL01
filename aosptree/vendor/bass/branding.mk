@@ -46,10 +46,15 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     nano
 
-    # Bass init
+# Bass init
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/bass_init/bass_init.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/bass_init.rc                       \
+    $(LOCAL_PATH)/configs/bass_init/bass_init.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/bass_init.rc \
     $(LOCAL_PATH)/configs/bass_init/bass_init.sh:$(TARGET_COPY_OUT_VENDOR)/etc/bass_init/bass_init.sh
+
+
+# restricted launcher prefs
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/restricted_launcher/whitelist_prefs.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/restricted_launcher/whitelist_prefs.xmls
 
 
 # Bootsight Service
@@ -264,6 +269,21 @@ else
 # Enable ADB authentication
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     ro.adb.secure=1
+endif
+
+ifeq ($(WITH_ADB_INSECURE), true)
+    PRODUCT_PROPERTY_OVERRIDES += \
+        persist.sys.usb.config="mtp,adb" \
+        persist.usb.debug=0 \
+        persist.adb.notify=0 \
+        ro.secure=0 \
+        ro.adb.secure=0 \
+        ro.debuggable=1 \
+        service.adb.root=1 \
+        persist.sys.root_access=1 \
+        persist.service.adb.enable=1 \
+        service.adb.tcp.port=5555
+
 endif
 
 ifeq ($(INCLUDE_AGPRIVAPPS), true)
