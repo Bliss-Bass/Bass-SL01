@@ -171,7 +171,7 @@ FUNC_BEGIN(bootcmd_start)
  echo "Bass Pi 14.0.1";
  echo "=================================================";
  echo " ";
- echo "Created by Navotpala Tech";
+ echo "Powered by Starlight Unlimited LLC";
  setenv silent 1;
  run bootmode_set;
 
