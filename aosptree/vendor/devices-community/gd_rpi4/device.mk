@@ -25,6 +25,7 @@ PRODUCT_COPY_FILES += \
     glodroid/configuration/common/no_suspend.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/no_suspend.rpi4.rc \
 
 PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/etc/modem.rpi4.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/modem.rpi4.rc \
     $(LOCAL_PATH)/etc/power.rpi4.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/power.rpi4.rc \
     $(LOCAL_PATH)/etc/snd.rpi4.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/snd.rpi4.rc     \
     $(LOCAL_PATH)/etc/uevent.device.rc:$(TARGET_COPY_OUT_VENDOR)/etc/uevent.device.rc \

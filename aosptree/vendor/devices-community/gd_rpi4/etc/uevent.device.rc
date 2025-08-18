@@ -15,3 +15,9 @@
 /dev/video18                                                                 0660   media      media
 /dev/video19                                                                 0660   media      media
 /dev/video31                                                                 0660   media      media
+
+# Modem
+/dev/ttyUSB0                                                                 0660    radio        radio
+/dev/ttyUSB1                                                                 0660    radio        radio
+/dev/ttyUSB2                                                                 0660    radio        radio
+/dev/ttyUSB3                                                                 0660    radio        radio
