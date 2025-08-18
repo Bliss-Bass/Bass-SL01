@@ -48,5 +48,16 @@
 
   <!-- LineageOS -->
   <project path="packages/apps/Jelly" name="LineageOS/android_packages_apps_Jelly" sync-s="true" remote="hghub" revision="lineage-21.0" />
+
+  <!-- modem components (vendor) -->
+  <project path="glodroid/vendor/mm-radio"        remote="glodroid"    name="mm-radio.git"     groups="glodroid" revision="4149a692f9ee2ebb72ac41943a673f3ee99e42f6" />
+  <project path="glodroid/vendor/mm-radio/vendor"        remote="bb"    name="mm-radio.git"     groups="glodroid" revision="cargo-deps-2025w30" />
+  <project path="glodroid/vendor/dbus"            remote="dbus"        name="dbus.git"         groups="glodroid" revision="refs/tags/dbus-1.15.2" />
+  <project path="glodroid/vendor/libqmi"          remote="mbroadband"  name="libqmi.git"       groups="glodroid" revision="qmi-1-34" />
+  <project path="glodroid/vendor/modem_manager"   remote="mbroadband"  name="ModemManager.git" groups="glodroid" revision="616df80418612fa9e0f78d34049767e118d60204" />
+  <project path="glodroid/vendor/libgudev"        remote="gnome"       name="libgudev.git"     groups="glodroid" revision="refs/tags/237" />
+  <project path="glodroid/vendor/glib"            remote="gnome"       name="glib.git"         groups="glodroid" revision="ec3b1bfc45216850c1a861055ad2fd9d9906813a" />
+  <project path="glodroid/vendor/glib/subprojects/gvdb" remote="gnome" name="gvdb.git"         groups="glodroid" revision="0854af0fdb6d527a8d1999835ac2c5059976c210" />
+  <project path="glodroid/vendor/glib/subprojects/proxy-libintl" remote="github"  name="frida/proxy-libintl.git" groups="glodroid" revision="refs/tags/0.4" />
   
 </manifest>
