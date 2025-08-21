@@ -37,6 +37,9 @@
   <project name="android-generic/vendor_foss" path="vendor/foss" remote="sghub" revision="hmchoice" upstream="hmchoice" dest-branch="hmchoice"/>
   <project name="Bliss-Bass/public_vendor_prebuilts_agp-apps" path="vendor/agp-apps" remote="hglab" revision="bass-14.0" />
 
+  <!-- SL01 Specific Private Apps -->
+  <project name="Bliss-Bass/sl01-vendor-agp-apps-private" path="vendor/agp-apps/private" remote="sglab" revision="SL01-Phase02" />
+
   <!-- LineageOS -->
   <!-- <remove-project name="android_frameworks_opt_colorpicker" />
   <project path="frameworks/opt/colorpicker" name="LineageOS/android_frameworks_opt_colorpicker" remote="ghub" revision="lineage-19.1"/>
