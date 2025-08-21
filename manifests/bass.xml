@@ -12,7 +12,7 @@
   <project path="glodroid/apks" name="glodroid_external_apks" remote="bb" revision="master" />
   <remove-project name="glodroid_configuration.git" />
   <project path="glodroid" remote="sghub" name="GloDroid/glodroid_configuration" revision="refs/tags/basedir-v0.9.0" />
-  <project path="glodroid/configuration" name="glodroid_configuration" remote="bb" revision="fd8ce7d2869a9f544a5732a5d49bf9b1028fb824" />
+  <project path="glodroid/configuration" name="glodroid_configuration" remote="bb" revision="de85cccc7efae839c881be6583da1b3edc7682fd" />
   <!-- <remove-project name="platform_packages_apps_SetupWizard" /> -->
   <project path="packages/apps/SetupWizard" name="Bliss-Bass/platform_packages_apps_SetupWizard" remote="hghub" revision="bass-15.0" />
   <!-- <project path="packages/apps/Seedvault" name="LineageOS/android_packages_apps_Seedvault" remote="ghub" revision="lineage-19.1" /> -->
