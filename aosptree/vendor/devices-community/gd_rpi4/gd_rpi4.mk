@@ -38,8 +38,8 @@ SYSFS_MMC0_PATH := emmc2bus/fe340000.mmc
 RPI_CONFIG := $(LOCAL_PATH)/boot/config.txt
 RPI_CMDLINE := $(LOCAL_PATH)/boot/cmdline.txt
 
-GD_NO_DEFAULT_MODEM := false
-GD_EG25_MODEM := false
+GD_NO_DEFAULT_MODEM := true
+GD_EG25_MODEM := true
 GD_BUILD_QUECTEL_GPS := false
 
 PRODUCT_PACKAGES += cromite-webview
