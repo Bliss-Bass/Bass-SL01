@@ -79,6 +79,7 @@
     <!--Quectel RIL-->
     <bool name="config_voice_capable">true</bool>
     <bool name="config_sms_capable">true</bool>
+    <bool name="config_mobile_data_capable">true</bool>
 
     <!-- This string array should be overridden by the device to present a list of radio
                   attributes.  This is used by the connectivity manager to decide which networks can coexist
